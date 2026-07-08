@@ -61,7 +61,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   }
 
   const taskCountForCategory = (categoryId: string) =>
-    tasks.filter((t) => t.categoryId === categoryId && !t.completed).length
+    tasks.filter((t) => t.categoryId === categoryId).length
 
   const sidebarContent = (
     <div className="flex flex-col h-full w-full bg-surface transition-colors duration-300">
@@ -102,7 +102,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <CheckSquare className="h-4 w-4 shrink-0" />
               Todas as tarefas
               <span className="ml-auto text-xs font-semibold bg-border/40 px-1.5 py-0.5 rounded-full">
-                {tasks.filter((t) => !t.completed).length}
+                {tasks.length}
               </span>
             </button>
           </nav>
