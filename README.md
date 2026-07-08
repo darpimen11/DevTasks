@@ -68,7 +68,7 @@ Architecture details, folder structure, color palette, and animations are in [DE
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/devtasks.git
+git clone https://github.com/darpimen11/devtasks.git
 cd devtasks
 
 # Install dependencies
