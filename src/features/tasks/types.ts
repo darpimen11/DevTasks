@@ -8,4 +8,5 @@ export interface Task {
   createdAt: number
   priority: Priority
   categoryId?: string
+  tags: string[]
 }

@@ -12,14 +12,17 @@ import { CategoryBadge } from '../../categories/components/CategoryBadge'
 
 interface TaskCardProps {
   task: Task
+  activeTag?: string | null
+  onTagClick?: (tag: string) => void
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
+export const TaskCard: React.FC<TaskCardProps> = ({ task, activeTag, onTagClick }) => {
   const { toggleTask, deleteTask, editTask } = useTasksStore()
   const { categories } = useCategoriesStore()
   const [isEditing, setIsEditing] = useState(false)
 
   const category = task.categoryId ? categories.find((c) => c.id === task.categoryId) : undefined
+  const tags = task.tags ?? []
 
   const handleDelete = () => {
     if (window.confirm('Tem certeza que deseja excluir esta tarefa?')) {
@@ -33,8 +36,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
     description: string,
     priority: Task['priority'],
     categoryId?: string,
+    tags?: string[],
   ) => {
-    editTask(task.id, { title, description, priority, categoryId })
+    editTask(task.id, { title, description, priority, categoryId, tags: tags ?? [] })
     setIsEditing(false)
     toast.success('Tarefa atualizada')
   }
@@ -81,6 +85,36 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
               {formatDate(task.createdAt)}
             </span>
           </div>
+
+          {tags.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              {tags.map((tag) => {
+                const isActive = activeTag?.toLowerCase() === tag.toLowerCase()
+                const tagClassName = `inline-flex max-w-full items-center rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors ${
+                  isActive
+                    ? 'border-accent/50 bg-accent/10 text-accent'
+                    : 'border-border bg-background/60 text-text-secondary hover:border-border/80 hover:text-text-primary'
+                }`
+
+                return onTagClick ? (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => onTagClick(tag)}
+                    className={tagClassName}
+                    aria-pressed={isActive}
+                    title={`Filtrar por ${tag}`}
+                  >
+                    <span className="truncate">{tag}</span>
+                  </button>
+                ) : (
+                  <span key={tag} className={tagClassName}>
+                    <span className="truncate">{tag}</span>
+                  </span>
+                )
+              })}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-1 shrink-0">
@@ -108,6 +142,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
           initialDescription={task.description}
           initialPriority={task.priority}
           initialCategoryId={task.categoryId}
+          initialTags={tags}
           onCancel={() => setIsEditing(false)}
           submitLabel="Salvar"
         />

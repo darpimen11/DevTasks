@@ -4,7 +4,13 @@ import type { Task, Priority } from '../features/tasks/types'
 
 interface TasksState {
   tasks: Task[]
-  addTask: (title: string, description: string, priority: Priority, categoryId?: string) => void
+  addTask: (
+    title: string,
+    description: string,
+    priority: Priority,
+    categoryId?: string,
+    tags?: string[],
+  ) => void
   toggleTask: (id: string) => void
   editTask: (id: string, updates: Partial<Task>) => void
   deleteTask: (id: string) => void
@@ -16,7 +22,7 @@ export const useTasksStore = create<TasksState>()(
   persist(
     (set) => ({
       tasks: [],
-      addTask: (title, description, priority, categoryId) =>
+      addTask: (title, description, priority, categoryId, tags = []) =>
         set((state) => ({
           tasks: [
             ...state.tasks,
@@ -28,6 +34,7 @@ export const useTasksStore = create<TasksState>()(
               createdAt: Date.now(),
               priority,
               categoryId,
+              tags,
             },
           ],
         })),

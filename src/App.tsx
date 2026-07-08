@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
+import { X } from 'lucide-react'
 import { Toaster, toast } from 'sonner'
 import { useTheme } from './hooks/useTheme'
 import { PageWrapper } from './components/layout/PageWrapper'
@@ -59,6 +60,7 @@ function App() {
   const [priorityFilter, setPriorityFilter] = useState<Priority[]>([])
   const [sortOrder, setSortOrder] = useState<SortOrder>('createdAt')
   const [searchQuery, setSearchQuery] = useState('')
+  const [activeTag, setActiveTag] = useState<string | null>(null)
 
   const filteredAndSortedTasks = useMemo(() => {
     let result = [...tasks]
@@ -71,6 +73,13 @@ function App() {
     // Priority filter (multi-select OR logic)
     if (priorityFilter.length > 0) {
       result = result.filter((t) => priorityFilter.includes(t.priority))
+    }
+
+    // Tag filter
+    if (activeTag) {
+      result = result.filter((t) =>
+        (t.tags ?? []).some((tag) => tag.toLowerCase() === activeTag.toLowerCase()),
+      )
     }
 
     // Text search
@@ -92,10 +101,25 @@ function App() {
     })
 
     return result
-  }, [tasks, activeCategoryId, priorityFilter, sortOrder, searchQuery])
+  }, [tasks, activeCategoryId, priorityFilter, activeTag, sortOrder, searchQuery])
 
-  const handleCreateTask = (title: string, description: string, priority: Priority, categoryId?: string) => {
-    addTask(title, description, priority, categoryId)
+  const hasActiveFilters =
+    !!activeCategoryId || priorityFilter.length > 0 || !!searchQuery.trim() || !!activeTag
+
+  const handleTagFilter = (tag: string) => {
+    setActiveTag((currentTag) =>
+      currentTag?.toLowerCase() === tag.toLowerCase() ? null : tag,
+    )
+  }
+
+  const handleCreateTask = (
+    title: string,
+    description: string,
+    priority: Priority,
+    categoryId?: string,
+    tags?: string[],
+  ) => {
+    addTask(title, description, priority, categoryId, tags)
     setIsNewTaskModalOpen(false)
     toast.success('Tarefa criada com sucesso')
   }
@@ -131,15 +155,30 @@ function App() {
               {activeCategoryId ? 'Categoria' : 'Minhas Tarefas'}
             </h1>
             <p className="text-sm text-text-secondary transition-colors duration-300">
-              {filteredAndSortedTasks.length === tasks.length
+              {!hasActiveFilters
                 ? `${tasks.filter((t) => !t.completed).length} tarefa${tasks.filter((t) => !t.completed).length !== 1 ? 's' : ''} em andamento`
                 : `${filteredAndSortedTasks.filter((t) => !t.completed).length} tarefa${filteredAndSortedTasks.filter((t) => !t.completed).length !== 1 ? 's' : ''} encontrada${filteredAndSortedTasks.filter((t) => !t.completed).length !== 1 ? 's' : ''} com os filtros ativos`}
             </p>
+            {activeTag && (
+              <div className="mt-2 flex">
+                <button
+                  type="button"
+                  onClick={() => setActiveTag(null)}
+                  className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent hover:bg-accent/15 transition-colors"
+                  title="Remover filtro de tag"
+                >
+                  <span className="truncate">{activeTag}</span>
+                  <X className="h-3.5 w-3.5 shrink-0" />
+                </button>
+              </div>
+            )}
           </div>
 
           <TaskList
             tasks={filteredAndSortedTasks}
             onNewTaskClick={() => setIsNewTaskModalOpen(true)}
+            activeTag={activeTag}
+            onTagClick={handleTagFilter}
             isLoading={isLoading}
           />
         </div>

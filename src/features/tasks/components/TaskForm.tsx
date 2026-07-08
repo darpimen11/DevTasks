@@ -1,15 +1,23 @@
 import React, { useState } from 'react'
+import { Plus, X } from 'lucide-react'
 import { Button } from '../../../components/ui/Button'
 import { PRIORITY_CONFIG } from './PriorityBadge'
 import { useCategoriesStore } from '../../../store/categoriesStore'
 import type { Priority } from '../types'
 
 interface TaskFormProps {
-  onSubmit: (title: string, description: string, priority: Priority, categoryId?: string) => void
+  onSubmit: (
+    title: string,
+    description: string,
+    priority: Priority,
+    categoryId?: string,
+    tags?: string[],
+  ) => void
   initialTitle?: string
   initialDescription?: string
   initialPriority?: Priority
   initialCategoryId?: string
+  initialTags?: string[]
   onCancel: () => void
   submitLabel?: string
 }
@@ -20,6 +28,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   initialDescription = '',
   initialPriority = 'medium',
   initialCategoryId = '',
+  initialTags = [],
   onCancel,
   submitLabel = 'Salvar',
 }) => {
@@ -27,9 +36,42 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   const [description, setDescription] = useState(initialDescription)
   const [priority, setPriority] = useState<Priority>(initialPriority)
   const [categoryId, setCategoryId] = useState(initialCategoryId)
+  const [tags, setTags] = useState<string[]>(initialTags)
+  const [tagInput, setTagInput] = useState('')
   const [error, setError] = useState('')
 
   const { categories } = useCategoriesStore()
+
+  const normalizeTag = (value: string) => value.trim().replace(/\s+/g, ' ')
+
+  const hasTag = (value: string, currentTags = tags) =>
+    currentTags.some((tag) => tag.toLowerCase() === value.toLowerCase())
+
+  const handleAddTag = () => {
+    const nextTag = normalizeTag(tagInput)
+    if (!nextTag || hasTag(nextTag)) {
+      setTagInput('')
+      return
+    }
+
+    setTags((currentTags) => [...currentTags, nextTag])
+    setTagInput('')
+  }
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setTags((currentTags) => currentTags.filter((tag) => tag !== tagToRemove))
+  }
+
+  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault()
+      handleAddTag()
+    }
+
+    if (e.key === 'Backspace' && !tagInput && tags.length > 0) {
+      setTags((currentTags) => currentTags.slice(0, -1))
+    }
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,7 +79,12 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       setError('O título é obrigatório.')
       return
     }
-    onSubmit(title.trim(), description.trim(), priority, categoryId || undefined)
+
+    const pendingTag = normalizeTag(tagInput)
+    const submitTags =
+      pendingTag && !hasTag(pendingTag) ? [...tags, pendingTag] : tags
+
+    onSubmit(title.trim(), description.trim(), priority, categoryId || undefined, submitTags)
   }
 
   const priorities: Priority[] = ['low', 'medium', 'high', 'urgent']
@@ -127,6 +174,52 @@ export const TaskForm: React.FC<TaskFormProps> = ({
           </select>
         </div>
       )}
+
+      {/* Tags */}
+      <div>
+        <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-1.5">
+          Tags
+        </label>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={handleTagKeyDown}
+            placeholder="ex: frontend"
+            className="min-w-0 flex-1 px-3 py-2 text-sm rounded-lg border border-border bg-surface text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:ring-2 focus:ring-accent"
+          />
+          <button
+            type="button"
+            onClick={handleAddTag}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-text-secondary hover:text-text-primary hover:bg-border/20 focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
+            title="Adicionar tag"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+        </div>
+
+        {tags.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {tags.map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex items-center gap-1 rounded-full border border-border bg-background/60 px-2 py-0.5 text-[11px] font-medium text-text-secondary"
+              >
+                {tag}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveTag(tag)}
+                  className="-mr-0.5 rounded-full p-0.5 hover:bg-border/50 hover:text-text-primary transition-colors"
+                  title={`Remover tag ${tag}`}
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Actions */}
       <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">

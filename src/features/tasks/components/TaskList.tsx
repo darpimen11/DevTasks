@@ -9,10 +9,18 @@ import { TaskCardSkeleton } from './TaskCardSkeleton'
 interface TaskListProps {
   tasks: Task[]
   onNewTaskClick: () => void
+  activeTag?: string | null
+  onTagClick?: (tag: string) => void
   isLoading?: boolean
 }
 
-export const TaskList: React.FC<TaskListProps> = ({ tasks, onNewTaskClick, isLoading }) => {
+export const TaskList: React.FC<TaskListProps> = ({
+  tasks,
+  onNewTaskClick,
+  activeTag,
+  onTagClick,
+  isLoading,
+}) => {
   if (isLoading) {
     return (
       <div className="space-y-3">
@@ -49,7 +57,7 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onNewTaskClick, isLoa
                   exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0, overflow: 'hidden' }}
                   transition={{ duration: 0.2 }}
                 >
-                  <TaskCard task={task} />
+                  <TaskCard task={task} activeTag={activeTag} onTagClick={onTagClick} />
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -74,7 +82,7 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onNewTaskClick, isLoa
                   exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0, overflow: 'hidden' }}
                   transition={{ duration: 0.2 }}
                 >
-                  <TaskCard task={task} />
+                  <TaskCard task={task} activeTag={activeTag} onTagClick={onTagClick} />
                 </motion.div>
               ))}
             </AnimatePresence>
