@@ -4,12 +4,25 @@ import type { Task } from '../types'
 import { TaskCard } from './TaskCard'
 import { EmptyState } from '../../../components/ui/EmptyState'
 
+import { TaskCardSkeleton } from './TaskCardSkeleton'
+
 interface TaskListProps {
   tasks: Task[]
   onNewTaskClick: () => void
+  isLoading?: boolean
 }
 
-export const TaskList: React.FC<TaskListProps> = ({ tasks, onNewTaskClick }) => {
+export const TaskList: React.FC<TaskListProps> = ({ tasks, onNewTaskClick, isLoading }) => {
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        <TaskCardSkeleton />
+        <TaskCardSkeleton />
+        <TaskCardSkeleton />
+      </div>
+    )
+  }
+
   if (tasks.length === 0) {
     return <EmptyState onActionClick={onNewTaskClick} />
   }

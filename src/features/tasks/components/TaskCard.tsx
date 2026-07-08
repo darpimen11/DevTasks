@@ -4,6 +4,7 @@ import type { Task } from '../types'
 import { Checkbox } from '../../../components/ui/Checkbox'
 import { useTasksStore } from '../../../store/tasksStore'
 import { useCategoriesStore } from '../../../store/categoriesStore'
+import { toast } from 'sonner'
 import { Modal } from '../../../components/ui/Modal'
 import { TaskForm } from './TaskForm'
 import { PriorityBadge } from './PriorityBadge'
@@ -23,6 +24,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   const handleDelete = () => {
     if (window.confirm('Tem certeza que deseja excluir esta tarefa?')) {
       deleteTask(task.id)
+      toast.info('Tarefa excluída')
     }
   }
 
@@ -34,6 +36,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   ) => {
     editTask(task.id, { title, description, priority, categoryId })
     setIsEditing(false)
+    toast.success('Tarefa atualizada')
   }
 
   const formatDate = (timestamp: number) => {

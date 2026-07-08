@@ -1,5 +1,5 @@
 import React from 'react'
-import { Plus, Menu } from 'lucide-react'
+import { Plus, Menu, Search } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { PRIORITY_CONFIG } from '../../features/tasks/components/PriorityBadge'
 import type { Priority } from '../../features/tasks/types'
@@ -34,7 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
   }
 
   return (
-    <header className="border-b border-border bg-surface shrink-0">
+    <header className="border-b border-border bg-surface shrink-0 transition-colors duration-300">
       {/* Top row */}
       <div className="h-14 flex items-center justify-between px-5 gap-4">
         <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -45,6 +45,22 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <Menu className="h-5 w-5" />
           </button>
+
+          {/* Search Bar Visual Placeholder */}
+          <div className="relative max-w-md w-full hidden sm:block">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-text-secondary">
+              <Search className="h-4 w-4" />
+            </span>
+            <input
+              id="search-input"
+              type="text"
+              placeholder="Buscar tarefas... (Fase 2)"
+              className="w-full pl-9 pr-4 py-1.5 text-sm rounded-lg border border-border bg-background/50 text-text-secondary placeholder:text-text-secondary/50 focus:outline-none focus:ring-2 focus:ring-accent transition-colors duration-300"
+            />
+            <kbd className="absolute inset-y-0 right-3 flex items-center text-[10px] text-text-secondary/40 font-mono">
+              /
+            </kbd>
+          </div>
 
           {/* Sort selector */}
           <select

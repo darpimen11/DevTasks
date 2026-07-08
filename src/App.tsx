@@ -1,4 +1,6 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { Toaster, toast } from 'sonner'
+import { useTheme } from './hooks/useTheme'
 import { PageWrapper } from './components/layout/PageWrapper'
 import { Sidebar } from './components/layout/Sidebar'
 import { Header } from './components/layout/Header'
@@ -13,10 +15,44 @@ type SortOrder = 'createdAt' | 'priority' | 'alphabetical'
 const PRIORITY_ORDER: Record<Priority, number> = { urgent: 0, high: 1, medium: 2, low: 3 }
 
 function App() {
+  const { theme } = useTheme()
   const { tasks, addTask } = useTasksStore()
 
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Simulate loading state
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [])
+
+  // Global Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        document.activeElement instanceof HTMLInputElement ||
+        document.activeElement instanceof HTMLTextAreaElement ||
+        document.activeElement instanceof HTMLSelectElement
+      ) {
+        return
+      }
+
+      if (e.key.toLowerCase() === 'n') {
+        e.preventDefault()
+        setIsNewTaskModalOpen(true)
+      } else if (e.key === '/') {
+        e.preventDefault()
+        document.getElementById('search-input')?.focus()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   // Filter & sort state (ephemeral — not persisted)
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null)
@@ -50,10 +86,12 @@ function App() {
   const handleCreateTask = (title: string, description: string, priority: Priority, categoryId?: string) => {
     addTask(title, description, priority, categoryId)
     setIsNewTaskModalOpen(false)
+    toast.success('Tarefa criada com sucesso')
   }
 
   return (
     <>
+      <Toaster theme={theme} richColors position="bottom-right" />
       <PageWrapper
         sidebar={
           <Sidebar
@@ -76,10 +114,10 @@ function App() {
       >
         <div className="space-y-6">
           <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-bold tracking-tight text-text-primary">
+            <h1 className="text-2xl font-bold tracking-tight text-text-primary transition-colors duration-300">
               {activeCategoryId ? 'Categoria' : 'Minhas Tarefas'}
             </h1>
-            <p className="text-sm text-text-secondary">
+            <p className="text-sm text-text-secondary transition-colors duration-300">
               {filteredAndSortedTasks.length === tasks.length
                 ? `${tasks.filter((t) => !t.completed).length} tarefa${tasks.filter((t) => !t.completed).length !== 1 ? 's' : ''} em andamento`
                 : `${filteredAndSortedTasks.filter((t) => !t.completed).length} tarefa${filteredAndSortedTasks.filter((t) => !t.completed).length !== 1 ? 's' : ''} encontrada${filteredAndSortedTasks.filter((t) => !t.completed).length !== 1 ? 's' : ''} com os filtros ativos`}
@@ -89,6 +127,7 @@ function App() {
           <TaskList
             tasks={filteredAndSortedTasks}
             onNewTaskClick={() => setIsNewTaskModalOpen(true)}
+            isLoading={isLoading}
           />
         </div>
       </PageWrapper>
