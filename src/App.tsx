@@ -16,7 +16,7 @@ import type { DragEndEvent } from '@dnd-kit/core'
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import { KanbanBoard } from './features/tasks/components/KanbanBoard'
 import { CommandPalette } from './components/ui/CommandPalette'
-import { Plus, LayoutList, LayoutDashboard, Moon, Sun, FolderPlus, Github } from 'lucide-react'
+import { Plus, LayoutList, LayoutDashboard, Moon, Sun, FolderPlus, GitPullRequest } from 'lucide-react'
 
 type SortOrder = 'createdAt' | 'priority' | 'alphabetical' | 'manual'
 
@@ -177,7 +177,7 @@ export const App: React.FC = () => {
     {
       id: 'import-github',
       title: 'Importar do GitHub',
-      icon: <Github className="h-4 w-4" />,
+      icon: <GitPullRequest className="h-4 w-4" />,
       action: () => setIsGithubModalOpen(true)
     },
     {

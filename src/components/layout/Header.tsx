@@ -1,5 +1,5 @@
 import React from 'react'
-import { Plus, Menu, Search, X, LayoutList, LayoutDashboard, Github } from 'lucide-react'
+import { Plus, Menu, Search, X, LayoutList, LayoutDashboard, GitPullRequest } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { PRIORITY_CONFIG } from '../../features/tasks/components/PriorityBadge'
 import type { Priority } from '../../features/tasks/types'
@@ -116,7 +116,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <Button onClick={onGithubImportClick} variant="ghost" className="px-2" title="Importar do GitHub">
-            <Github className="h-4 w-4" />
+            <GitPullRequest className="h-4 w-4" />
           </Button>
           <Button onClick={onNewTaskClick} className="flex items-center gap-1.5 shadow-sm">
             <Plus className="h-4 w-4" />

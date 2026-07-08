@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
-import { Search, Github, Download, AlertCircle, CheckSquare, Square, X } from 'lucide-react'
+import { GitPullRequest, AlertCircle, CheckSquare, Square } from 'lucide-react'
 import { Modal } from '../../../components/ui/Modal'
 import { Button } from '../../../components/ui/Button'
 import { toast } from 'sonner'
 import { useTasksStore } from '../../../store/tasksStore'
-import { Checkbox } from '../../../components/ui/Checkbox'
 
 interface GithubIssue {
   id: number
@@ -177,7 +176,7 @@ export const GithubImportModal: React.FC<GithubImportModalProps> = ({ isOpen, on
                         onClick={(e) => e.stopPropagation()}
                         className="text-xs text-accent hover:underline inline-flex items-center gap-1"
                       >
-                        <Github className="w-3 h-3" />
+                        <GitPullRequest className="w-3 h-3" />
                         Ver no GitHub
                       </a>
                     </div>

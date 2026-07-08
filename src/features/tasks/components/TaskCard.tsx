@@ -90,6 +90,18 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, activeTag, onTagClick 
           <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
             <PriorityBadge priority={task.priority} size="xs" />
             {category && <CategoryBadge category={category} size="xs" />}
+            {task.githubUrl && (
+              <a 
+                href={task.githubUrl}
+                target="_blank"
+                rel="noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1 bg-surface text-[10px] border border-border px-1.5 py-0.5 rounded text-accent hover:bg-accent/10 transition-colors"
+                title="Ver issue no GitHub"
+              >
+                GitHub
+              </a>
+            )}
             <span className="inline-flex items-center gap-1 text-[10px] text-text-secondary ml-auto">
               <Calendar className="h-3 w-3" />
               {formatDate(task.createdAt)}
