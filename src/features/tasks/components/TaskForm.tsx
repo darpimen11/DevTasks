@@ -4,6 +4,7 @@ import { Button } from '../../../components/ui/Button'
 import { PRIORITY_CONFIG } from './PriorityBadge'
 import { useCategoriesStore } from '../../../store/categoriesStore'
 import type { Priority, Subtask } from '../types'
+import { TASK_TEMPLATES } from '../constants/templates'
 
 interface TaskFormProps {
   onSubmit: (
@@ -120,10 +121,34 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     onSubmit(title.trim(), description.trim(), priority, categoryId || undefined, submitTags, submitSubtasks)
   }
 
+  const handleTemplateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const templateId = e.target.value
+    if (!templateId) return
+    const template = TASK_TEMPLATES.find(t => t.id === templateId)
+    if (template) {
+      setDescription(template.content)
+    }
+  }
+
   const priorities: Priority[] = ['low', 'medium', 'high', 'urgent']
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Templates Selector */}
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium text-text-primary">Template (Opcional)</label>
+        <select
+          onChange={handleTemplateChange}
+          defaultValue=""
+          className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
+        >
+          <option value="" disabled>Selecione um template para preencher a descrição</option>
+          {TASK_TEMPLATES.map(t => (
+            <option key={t.id} value={t.id}>{t.name}</option>
+          ))}
+        </select>
+      </div>
+
       {/* Title */}
       <div>
         <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-1.5">
