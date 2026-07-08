@@ -1,71 +1,70 @@
-# CLAUDE.md — Instruções do Agente para o projeto DevTasks
+# CLAUDE.md — Fase 2: Categorias & Prioridades
 
-Este arquivo é o guia operacional para você (agente de código) trabalhar neste repositório.
-Antes de tocar em qualquer código, leia `README.md`, `ROADMAP.md` e `DESIGN.md` na raiz — eles têm o contexto completo do produto, da stack e do design system. Este arquivo aqui é o "o que fazer agora", não repita decisões que já estão nesses três arquivos.
+O MVP (Fase 0 + Fase 1) já está validado e funcionando — não mexa nessa base a não ser que seja estritamente necessário para as tarefas abaixo. Este arquivo substitui o escopo anterior: o objetivo agora é **Fase 2 do ROADMAP.md** (Organização).
 
-## 🎯 Objetivo de hoje
-Entregar **Fase 0 (Setup) + Fase 1 (MVP)** do ROADMAP.md, 100% funcional, rodando localmente. Não avance para Fase 2+ antes de terminar e validar a Fase 1.
+Observação: o dark mode toggle já foi implementado (adiantado da Fase 3) — não precisa reimplementar, só garanta que os novos componentes desta fase respeitem as cores de dark mode do `DESIGN.md`.
 
-## Regras gerais de execução
-1. Trabalhe em ordem — cada tarefa abaixo depende da anterior. Não pule etapas.
-2. Depois de cada tarefa concluída, rode o projeto (`npm run dev`) e confirme que não quebrou nada antes de seguir.
-3. Faça commits pequenos e frequentes, seguindo Conventional Commits (`feat:`, `fix:`, `chore:`, `style:`). Um commit por tarefa concluída, não um commit gigante no final.
-4. Não decida stack por conta própria — use exatamente o que está em `README.md` (React + TypeScript + Vite + Tailwind + Zustand + Framer Motion). Se algo não estiver claro, siga a estrutura de pastas definida em `DESIGN.md`.
-5. Use as cores, tipografia e tokens de `DESIGN.md` desde o primeiro componente — não estilize "provisoriamente" com cores aleatórias.
-6. Não implemente autenticação, backend, GitHub integration, ou qualquer coisa de Fase 2+ hoje. Foco total no MVP local (localStorage).
-7. Se encontrar ambiguidade não coberta nos arquivos de contexto, tome a decisão mais simples possível que não comprometa o roadmap, e documente a decisão num comentário curto no código.
+## 🎯 Objetivo desta etapa
+Adicionar Categorias e Prioridades às tarefas, com filtros e ordenação funcionando.
+
+## Regras gerais
+1. Siga a ordem abaixo — cada tarefa depende da anterior.
+2. Rode `npm run dev` depois de cada tarefa concluída para validar antes de seguir.
+3. Commits pequenos, Conventional Commits, um por tarefa.
+4. Use as cores semânticas de prioridade já definidas em `DESIGN.md` (seção 2) — não invente novas cores.
+5. Não implemente tags, subtarefas, drag-and-drop ou Kanban ainda — isso é Fase 4.
+6. Ao terminar, atualize os checkboxes correspondentes no `ROADMAP.md`.
 
 ## 🧱 Ordem de execução
 
-### 1. Setup do projeto
-- [ ] Criar projeto com Vite (`npm create vite@latest . -- --template react-ts`)
-- [ ] Instalar e configurar Tailwind CSS (`darkMode: 'class'` no config, conforme DESIGN.md)
-- [ ] Instalar Zustand e Framer Motion
-- [ ] Configurar ESLint + Prettier
-- [ ] Criar a estrutura de pastas exatamente como descrita em `DESIGN.md` (features/tasks, components/ui, components/layout, store, hooks, lib, styles, utils)
-- [ ] Configurar `globals.css` com as CSS variables de cor (light + dark) definidas em DESIGN.md
-- [ ] Adicionar fonte Inter (via Google Fonts ou self-hosted)
-- [ ] Validar: `npm run dev` sobe sem erros, tela em branco estilizada com as cores corretas
+### 1. Modelo de dados
+- [ ] Criar tipo `Category` (id, nome, cor)
+- [ ] Criar tipo `Priority` como union type: `'low' | 'medium' | 'high' | 'urgent'`
+- [ ] Atualizar tipo `Task` para incluir `categoryId?: string` e `priority: Priority` (default `'medium'` ao criar)
+- [ ] Criar store `categoriesStore.ts` (Zustand + persist): `categories[]`, `addCategory`, `editCategory`, `deleteCategory`
+- [ ] Ao excluir uma categoria, decidir e documentar o comportamento: tarefas daquela categoria ficam sem categoria (não excluir as tarefas)
 
-### 2. Layout base
-- [ ] Componente `PageWrapper` (estrutura sidebar + header + conteúdo, conforme DESIGN.md seção 4)
-- [ ] `Sidebar` estático (sem lógica ainda — só estrutura visual: logo, espaço para categorias, espaço para toggle de dark mode)
-- [ ] `Header` estático (busca visual, botão "+ Nova Tarefa")
-- [ ] Responsivo: sidebar vira drawer em mobile (pode ser só o esqueleto, funcionalidade de abrir/fechar entra na Fase 3)
-- [ ] Validar: layout reconhecível nas duas resoluções (desktop e mobile), fiel ao DESIGN.md
+### 2. UI de categorias
+- [ ] Componente `CategoryBadge` (bolinha de cor + nome, reutilizável)
+- [ ] Seção de categorias na `Sidebar`: listar categorias com contador de tarefas, opção de criar nova (modal simples reutilizando o `Modal` já existente)
+- [ ] Formulário de categoria: nome + seletor de cor (pode ser uma paleta fixa de ~8 cores para manter consistência visual, não um color picker livre)
+- [ ] Editar e excluir categoria a partir da sidebar
+- [ ] Validar: criar categoria, ver refletida na sidebar, refresh mantém os dados
 
-### 3. Store de tarefas (Zustand)
-- [ ] Definir tipo `Task` (id, título, descrição, concluída, createdAt — nada de categoria/prioridade ainda, isso é Fase 2)
-- [ ] Store com: `addTask`, `toggleTask`, `editTask`, `deleteTask`, `tasks[]`
-- [ ] Persistência em localStorage (middleware `persist` do Zustand)
-- [ ] Validar: dar refresh na página e as tarefas continuam lá
+### 3. UI de prioridades
+- [ ] Componente `PriorityBadge` (ícone/cor conforme DESIGN.md: verde/amarelo/laranja/vermelho)
+- [ ] Adicionar seletor de prioridade no `TaskForm` (default: Média)
+- [ ] Exibir `PriorityBadge` no `TaskCard`
+- [ ] Validar: criar tarefa com cada uma das 4 prioridades, badge correto aparece
 
-### 4. CRUD de tarefas na UI
-- [ ] `TaskForm` — criar nova tarefa (título obrigatório, descrição opcional)
-- [ ] `TaskList` + `TaskCard` — listar tarefas
-- [ ] Checkbox para marcar como concluída (visual: strikethrough no texto quando concluída)
-- [ ] Editar tarefa (pode ser inline ou modal simples — decida pelo mais rápido de implementar bem)
-- [ ] Excluir tarefa, com confirmação (modal simples ou `window.confirm` mesmo, não precisa ser bonito hoje)
-- [ ] Empty state: quando não há tarefas, mostrar mensagem amigável + call-to-action para criar a primeira
-- [ ] Validar: fluxo completo de criar → editar → concluir → excluir funciona sem bugs
+### 4. Associar categoria à tarefa
+- [ ] Adicionar seletor de categoria no `TaskForm` (dropdown, opção "Sem categoria" incluída)
+- [ ] Exibir `CategoryBadge` no `TaskCard`
+- [ ] Validar: criar/editar tarefa mudando a categoria, refletido corretamente no card
 
-### 5. Finalização do MVP
-- [ ] Revisar responsividade em mobile
-- [ ] Revisar se as cores/tipografia batem com DESIGN.md em todos os componentes criados
-- [ ] Rodar build de produção (`npm run build`) e confirmar que não há erros
-- [ ] Atualizar o `ROADMAP.md`: marcar os checkboxes concluídos de Fase 0 e Fase 1
-- [ ] Commit final: `chore: MVP da Fase 1 completo`
+### 5. Filtros e ordenação
+- [ ] Clicar numa categoria na sidebar filtra a lista de tarefas por aquela categoria (clicar de novo remove o filtro)
+- [ ] Filtro por prioridade no `Header` (pode ser um dropdown simples ou badges clicáveis)
+- [ ] Os dois filtros devem combinar (categoria + prioridade ao mesmo tempo)
+- [ ] Adicionar ordenação: por prioridade (urgente primeiro), por data de criação, alfabética — um seletor simples no Header
+- [ ] Validar: combinar filtro de categoria + prioridade + ordenação simultaneamente sem bugs
 
-## ✅ Definição de "MVP pronto hoje"
-- App sobe com `npm run dev` sem erros e sem warnings de console.
-- Dá para criar, ver, editar, concluir e excluir uma tarefa, com os dados sobrevivendo a um refresh de página.
-- Visual já reflete a paleta de cores e tipografia do DESIGN.md (mesmo que dark mode ainda não tenha o toggle funcional — isso é Fase 3).
-- Nenhum código de Fase 2 em diante foi implementado antes disso estar 100% funcionando.
+### 6. Finalização
+- [ ] Revisar responsividade dos novos elementos (badges e dropdowns em mobile)
+- [ ] Revisar dark mode nos novos componentes
+- [ ] Rodar `npm run build` e confirmar sem erros
+- [ ] Atualizar `ROADMAP.md` (Fase 2 e o item "dark mode toggle" que já foi feito na Fase 3)
+- [ ] Commit final: `feat: categorias e prioridades (Fase 2)`
 
-## 🚫 Não fazer hoje
-- Categorias e prioridades (Fase 2)
-- Dark mode toggle funcional (Fase 3) — pode deixar os tokens de cor prontos, mas o switch em si não é hoje
-- Backend, autenticação, GitHub integration (Fase 5+)
-- Testes automatizados (Fase 8) — foco em entregar funcional primeiro
+## ✅ Definição de pronto
+- Dá para criar categorias com cor própria e atribuí-las a tarefas.
+- Dá para definir prioridade de cada tarefa, com indicador visual claro.
+- Filtro por categoria e por prioridade funcionam, inclusive combinados.
+- Ordenação funciona nos 3 critérios (prioridade, data, alfabética).
+- Nada quebrou do que já existia no MVP.
 
-Se terminar tudo isso com tempo sobrando, pode começar a Fase 2 (categorias/prioridades), mas registre isso claramente separado no commit, não misture com o MVP.
+## 🚫 Não fazer nesta etapa
+- Tags livres (Fase 4)
+- Subtarefas/checklists (Fase 4)
+- Drag and drop / Kanban (Fase 4)
+- Qualquer integração com backend/GitHub (Fase 5+)

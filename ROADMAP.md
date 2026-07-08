@@ -24,14 +24,14 @@ Roadmap organizado em fases incrementais. A ideia é sempre ter algo funcional e
 - [x] Responsivo (mobile-first)
 
 ## Fase 2 — Organização
-- [ ] Categorias/Projetos (criar, editar, cor personalizada, excluir)
-- [ ] Prioridades (Baixa/Média/Alta/Urgente) com cores e ícones
+- [x] Categorias/Projetos (criar, editar, cor personalizada, excluir)
+- [x] Prioridades (Baixa/Média/Alta/Urgente) com cores e ícones
 - [ ] Datas de vencimento (com destaque para atrasadas/"hoje")
-- [ ] Filtros combinados (categoria + prioridade + status + busca por texto)
-- [ ] Ordenação (por prioridade, data, criação, alfabética)
+- [x] Filtros combinados (categoria + prioridade + status + busca por texto)
+- [x] Ordenação (por prioridade, data, criação, alfabética)
 
 ## Fase 3 — Dark Mode & UX
-- [ ] Dark mode com toggle manual
+- [x] Dark mode com toggle manual
 - [ ] Detecção automática de preferência do sistema (`prefers-color-scheme`)
 - [ ] Persistir escolha do usuário
 - [ ] Transição suave entre temas (ver DESIGN.md)
