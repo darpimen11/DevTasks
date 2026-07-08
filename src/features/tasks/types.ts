@@ -18,4 +18,5 @@ export interface Task {
   subtasks?: Subtask[]
   order: number
   status?: 'todo' | 'doing' | 'done'
+  githubUrl?: string
 }

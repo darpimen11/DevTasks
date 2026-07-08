@@ -11,6 +11,7 @@ interface TasksState {
     categoryId?: string,
     tags?: string[],
     subtasks?: Omit<Subtask, 'id'>[],
+    githubUrl?: string,
   ) => void
   toggleTask: (id: string) => void
   editTask: (id: string, updates: Partial<Task>) => void
@@ -24,7 +25,7 @@ export const useTasksStore = create<TasksState>()(
   persist(
     (set) => ({
       tasks: [],
-      addTask: (title, description, priority, categoryId, tags = [], subtasks = []) =>
+      addTask: (title, description, priority, categoryId, tags = [], subtasks = [], githubUrl) =>
         set((state) => ({
           tasks: [
             ...state.tasks,
@@ -40,6 +41,7 @@ export const useTasksStore = create<TasksState>()(
               subtasks: subtasks.map(st => ({ ...st, id: crypto.randomUUID() })),
               order: Date.now(),
               status: 'todo',
+              githubUrl,
             },
           ],
         })),

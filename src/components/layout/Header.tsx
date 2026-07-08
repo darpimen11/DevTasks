@@ -1,5 +1,5 @@
 import React from 'react'
-import { Plus, Menu, Search, X, LayoutList, LayoutDashboard } from 'lucide-react'
+import { Plus, Menu, Search, X, LayoutList, LayoutDashboard, Github } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { PRIORITY_CONFIG } from '../../features/tasks/components/PriorityBadge'
 import type { Priority } from '../../features/tasks/types'
@@ -9,6 +9,7 @@ type SortOrder = 'createdAt' | 'priority' | 'alphabetical' | 'manual'
 interface HeaderProps {
   onMenuClick: () => void
   onNewTaskClick: () => void
+  onGithubImportClick: () => void
   priorityFilter: Priority[]
   onPriorityFilterChange: (p: Priority[]) => void
   sortOrder: SortOrder
@@ -32,6 +33,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSearchQueryChange,
   viewMode,
   onViewModeChange,
+  onGithubImportClick,
 }) => {
   const togglePriority = (p: Priority) => {
     if (priorityFilter.includes(p)) {
@@ -112,12 +114,16 @@ export const Header: React.FC<HeaderProps> = ({
             <option value="manual">Manual</option>
           </select>
         </div>
-
-        <Button onClick={onNewTaskClick} className="flex items-center gap-1.5 shadow-sm shrink-0">
-          <Plus className="h-4 w-4" />
-          <span className="hidden sm:inline">Nova tarefa</span>
-          <span className="sm:hidden">Nova</span>
-        </Button>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button onClick={onGithubImportClick} variant="ghost" className="px-2" title="Importar do GitHub">
+            <Github className="h-4 w-4" />
+          </Button>
+          <Button onClick={onNewTaskClick} className="flex items-center gap-1.5 shadow-sm">
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">Nova tarefa</span>
+            <span className="sm:hidden">Nova</span>
+          </Button>
+        </div>
       </div>
 
       {/* Priority filter row */}

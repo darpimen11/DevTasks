@@ -8,6 +8,7 @@ import { Header } from './components/layout/Header'
 import { TaskList } from './features/tasks/components/TaskList'
 import { Modal } from './components/ui/Modal'
 import { TaskForm } from './features/tasks/components/TaskForm'
+import { GithubImportModal } from './features/tasks/components/GithubImportModal'
 import { useTasksStore } from './store/tasksStore'
 import type { Priority, Subtask } from './features/tasks/types'
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
@@ -15,7 +16,7 @@ import type { DragEndEvent } from '@dnd-kit/core'
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import { KanbanBoard } from './features/tasks/components/KanbanBoard'
 import { CommandPalette } from './components/ui/CommandPalette'
-import { Plus, LayoutList, LayoutDashboard, Moon, Sun, FolderPlus } from 'lucide-react'
+import { Plus, LayoutList, LayoutDashboard, Moon, Sun, FolderPlus, Github } from 'lucide-react'
 
 type SortOrder = 'createdAt' | 'priority' | 'alphabetical' | 'manual'
 
@@ -26,6 +27,7 @@ export const App: React.FC = () => {
   const { tasks, addTask, reorderTasks } = useTasksStore()
 
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false)
+  const [isGithubModalOpen, setIsGithubModalOpen] = useState(false)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list')
@@ -173,6 +175,12 @@ export const App: React.FC = () => {
       action: () => setIsNewTaskModalOpen(true)
     },
     {
+      id: 'import-github',
+      title: 'Importar do GitHub',
+      icon: <Github className="h-4 w-4" />,
+      action: () => setIsGithubModalOpen(true)
+    },
+    {
       id: 'new-category',
       title: 'Nova categoria',
       icon: <FolderPlus className="h-4 w-4" />,
@@ -222,6 +230,7 @@ export const App: React.FC = () => {
             onSearchQueryChange={setSearchQuery}
             viewMode={effectiveViewMode}
             onViewModeChange={setViewMode}
+            onGithubImportClick={() => setIsGithubModalOpen(true)}
           />
         }
       >
@@ -281,6 +290,11 @@ export const App: React.FC = () => {
           submitLabel="Criar"
         />
       </Modal>
+
+      <GithubImportModal 
+        isOpen={isGithubModalOpen}
+        onClose={() => setIsGithubModalOpen(false)}
+      />
 
       <CommandPalette 
         isOpen={isCommandPaletteOpen}
