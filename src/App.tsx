@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useSyncExternalStore } from 'react'
 import { X } from 'lucide-react'
 import { Toaster, toast } from 'sonner'
 import { useTheme } from './hooks/useTheme'
@@ -30,6 +30,18 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list')
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
+
+  // Restrict Kanban to lg+ (1024px). Below that, always show list regardless of viewMode state.
+  const isDesktop = useSyncExternalStore(
+    (cb) => {
+      const mql = window.matchMedia('(min-width: 1024px)')
+      mql.addEventListener('change', cb)
+      return () => mql.removeEventListener('change', cb)
+    },
+    () => window.matchMedia('(min-width: 1024px)').matches,
+    () => true, // server snapshot (SSR safety)
+  )
+  const effectiveViewMode = isDesktop ? viewMode : 'list'
 
   // Simulate loading state
   useEffect(() => {
@@ -208,7 +220,7 @@ export const App: React.FC = () => {
             onSortOrderChange={setSortOrder}
             searchQuery={searchQuery}
             onSearchQueryChange={setSearchQuery}
-            viewMode={viewMode}
+            viewMode={effectiveViewMode}
             onViewModeChange={setViewMode}
           />
         }
@@ -239,7 +251,7 @@ export const App: React.FC = () => {
               )}
             </div>
 
-            {viewMode === 'list' ? (
+            {effectiveViewMode === 'list' ? (
               <TaskList
                 tasks={filteredAndSortedTasks}
                 onNewTaskClick={() => setIsNewTaskModalOpen(true)}

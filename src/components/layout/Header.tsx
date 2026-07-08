@@ -82,8 +82,8 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
 
-          {/* View Mode Toggle */}
-          <div className="flex bg-surface border border-border rounded-lg p-0.5 ml-2 hidden sm:flex shrink-0">
+          {/* View Mode Toggle — desktop (lg+) only */}
+          <div className="hidden lg:flex bg-surface border border-border rounded-lg p-0.5 ml-2 shrink-0">
             <button
               onClick={() => onViewModeChange('list')}
               className={`p-1 rounded-md transition-colors ${viewMode === 'list' ? 'bg-background shadow-sm text-text-primary' : 'text-text-secondary hover:text-text-primary'}`}
