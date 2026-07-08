@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { Edit2, Trash2, Calendar } from 'lucide-react'
-import type { Task } from '../types'
+import { Edit2, Trash2, Calendar, ChevronDown, ChevronUp, CheckSquare } from 'lucide-react'
+import type { Task, Subtask } from '../types'
 import { Checkbox } from '../../../components/ui/Checkbox'
 import { useTasksStore } from '../../../store/tasksStore'
 import { useCategoriesStore } from '../../../store/categoriesStore'
@@ -20,9 +20,12 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, activeTag, onTagClick 
   const { toggleTask, deleteTask, editTask } = useTasksStore()
   const { categories } = useCategoriesStore()
   const [isEditing, setIsEditing] = useState(false)
+  const [isSubtasksExpanded, setIsSubtasksExpanded] = useState(false)
 
   const category = task.categoryId ? categories.find((c) => c.id === task.categoryId) : undefined
   const tags = task.tags ?? []
+  const subtasks = task.subtasks ?? []
+  const completedSubtasksCount = subtasks.filter(st => st.completed).length
 
   const handleDelete = () => {
     if (window.confirm('Tem certeza que deseja excluir esta tarefa?')) {
@@ -37,10 +40,20 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, activeTag, onTagClick 
     priority: Task['priority'],
     categoryId?: string,
     tags?: string[],
+    subtasks?: Omit<Subtask, 'id'>[],
   ) => {
-    editTask(task.id, { title, description, priority, categoryId, tags: tags ?? [] })
+    editTask(task.id, { title, description, priority, categoryId, tags: tags ?? [], subtasks: subtasks as Subtask[] })
     setIsEditing(false)
     toast.success('Tarefa atualizada')
+  }
+
+  const handleToggleSubtask = (subtaskId: string) => {
+    if (!task.subtasks) return
+    const newSubtasks = task.subtasks.map(st => 
+      st.id === subtaskId ? { ...st, completed: !st.completed } : st
+    )
+    editTask(task.id, { subtasks: newSubtasks })
+    // Regra de negócio explícita: Concluir todas as subtarefas NÃO deve marcar a tarefa pai como concluída automaticamente.
   }
 
   const formatDate = (timestamp: number) => {
@@ -115,9 +128,49 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, activeTag, onTagClick 
               })}
             </div>
           )}
+
+          {subtasks.length > 0 && (
+            <div className="pt-1.5">
+              <button
+                type="button"
+                onClick={() => setIsSubtasksExpanded(!isSubtasksExpanded)}
+                className="flex items-center gap-1.5 text-xs font-medium text-text-secondary hover:text-text-primary transition-colors focus:outline-none"
+              >
+                <CheckSquare className="h-3.5 w-3.5" />
+                <span>
+                  {completedSubtasksCount}/{subtasks.length} subtarefas
+                </span>
+                {isSubtasksExpanded ? (
+                  <ChevronUp className="h-3.5 w-3.5 ml-0.5 opacity-70" />
+                ) : (
+                  <ChevronDown className="h-3.5 w-3.5 ml-0.5 opacity-70" />
+                )}
+              </button>
+
+              {isSubtasksExpanded && (
+                <div className="mt-2 space-y-1.5 pl-1">
+                  {subtasks.map((st) => (
+                    <div key={st.id} className="flex items-start gap-2 group">
+                      <div className="pt-0.5">
+                        <input
+                          type="checkbox"
+                          checked={st.completed}
+                          onChange={() => handleToggleSubtask(st.id)}
+                          className="w-3.5 h-3.5 rounded-sm border-border text-accent focus:ring-accent cursor-pointer transition-colors"
+                        />
+                      </div>
+                      <span className={`text-xs flex-1 break-words leading-tight ${st.completed ? 'line-through text-text-secondary opacity-70' : 'text-text-primary'}`}>
+                        {st.title}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex flex-col items-center gap-1 shrink-0">
           <button
             onClick={() => setIsEditing(true)}
             className="p-1.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-border/20 transition-colors focus:outline-none"
@@ -143,6 +196,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, activeTag, onTagClick 
           initialPriority={task.priority}
           initialCategoryId={task.categoryId}
           initialTags={tags}
+          initialSubtasks={subtasks}
           onCancel={() => setIsEditing(false)}
           submitLabel="Salvar"
         />

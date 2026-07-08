@@ -3,7 +3,7 @@ import { Plus, X } from 'lucide-react'
 import { Button } from '../../../components/ui/Button'
 import { PRIORITY_CONFIG } from './PriorityBadge'
 import { useCategoriesStore } from '../../../store/categoriesStore'
-import type { Priority } from '../types'
+import type { Priority, Subtask } from '../types'
 
 interface TaskFormProps {
   onSubmit: (
@@ -12,12 +12,14 @@ interface TaskFormProps {
     priority: Priority,
     categoryId?: string,
     tags?: string[],
+    subtasks?: Omit<Subtask, 'id'>[],
   ) => void
   initialTitle?: string
   initialDescription?: string
   initialPriority?: Priority
   initialCategoryId?: string
   initialTags?: string[]
+  initialSubtasks?: Omit<Subtask, 'id'>[]
   onCancel: () => void
   submitLabel?: string
 }
@@ -29,6 +31,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   initialPriority = 'medium',
   initialCategoryId = '',
   initialTags = [],
+  initialSubtasks = [],
   onCancel,
   submitLabel = 'Salvar',
 }) => {
@@ -38,6 +41,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   const [categoryId, setCategoryId] = useState(initialCategoryId)
   const [tags, setTags] = useState<string[]>(initialTags)
   const [tagInput, setTagInput] = useState('')
+  const [subtasks, setSubtasks] = useState<Omit<Subtask, 'id'>[]>(initialSubtasks)
+  const [subtaskInput, setSubtaskInput] = useState('')
   const [error, setError] = useState('')
 
   const { categories } = useCategoriesStore()
@@ -73,6 +78,30 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     }
   }
 
+  const handleAddSubtask = () => {
+    const title = subtaskInput.trim()
+    if (!title) return
+    setSubtasks((curr) => [...curr, { title, completed: false }])
+    setSubtaskInput('')
+  }
+
+  const handleSubtaskKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleAddSubtask()
+    }
+  }
+
+  const handleRemoveSubtask = (index: number) => {
+    setSubtasks((curr) => curr.filter((_, i) => i !== index))
+  }
+
+  const handleToggleSubtask = (index: number) => {
+    setSubtasks((curr) =>
+      curr.map((st, i) => (i === index ? { ...st, completed: !st.completed } : st))
+    )
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!title.trim()) {
@@ -84,7 +113,11 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     const submitTags =
       pendingTag && !hasTag(pendingTag) ? [...tags, pendingTag] : tags
 
-    onSubmit(title.trim(), description.trim(), priority, categoryId || undefined, submitTags)
+    const pendingSubtask = subtaskInput.trim()
+    const submitSubtasks =
+      pendingSubtask ? [...subtasks, { title: pendingSubtask, completed: false }] : subtasks
+
+    onSubmit(title.trim(), description.trim(), priority, categoryId || undefined, submitTags, submitSubtasks)
   }
 
   const priorities: Priority[] = ['low', 'medium', 'high', 'urgent']
@@ -216,6 +249,57 @@ export const TaskForm: React.FC<TaskFormProps> = ({
                   <X className="h-3 w-3" />
                 </button>
               </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Subtasks */}
+      <div>
+        <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-1.5">
+          Subtarefas
+        </label>
+        <div className="flex gap-2 mb-2">
+          <input
+            type="text"
+            value={subtaskInput}
+            onChange={(e) => setSubtaskInput(e.target.value)}
+            onKeyDown={handleSubtaskKeyDown}
+            placeholder="Adicionar subtarefa..."
+            className="min-w-0 flex-1 px-3 py-2 text-sm rounded-lg border border-border bg-surface text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:ring-2 focus:ring-accent"
+          />
+          <button
+            type="button"
+            onClick={handleAddSubtask}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-text-secondary hover:text-text-primary hover:bg-border/20 focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
+            title="Adicionar subtarefa"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+        </div>
+
+        {subtasks.length > 0 && (
+          <div className="space-y-1">
+            {subtasks.map((st, index) => (
+              <div key={index} className="flex items-center gap-2 group px-1 rounded hover:bg-border/10 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={st.completed}
+                  onChange={() => handleToggleSubtask(index)}
+                  className="w-3.5 h-3.5 rounded-sm border-border text-accent focus:ring-accent cursor-pointer"
+                />
+                <span className={`text-sm flex-1 truncate ${st.completed ? 'line-through text-text-secondary' : 'text-text-primary'}`}>
+                  {st.title}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveSubtask(index)}
+                  className="p-1 text-text-secondary hover:text-priority-urgent opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Remover subtarefa"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
             ))}
           </div>
         )}

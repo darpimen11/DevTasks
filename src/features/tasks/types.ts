@@ -1,5 +1,11 @@
 export type Priority = 'low' | 'medium' | 'high' | 'urgent'
 
+export interface Subtask {
+  id: string
+  title: string
+  completed: boolean
+}
+
 export interface Task {
   id: string
   title: string
@@ -9,4 +15,5 @@ export interface Task {
   priority: Priority
   categoryId?: string
   tags: string[]
+  subtasks?: Subtask[]
 }

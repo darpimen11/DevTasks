@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Task, Priority } from '../features/tasks/types'
+import type { Task, Priority, Subtask } from '../features/tasks/types'
 
 interface TasksState {
   tasks: Task[]
@@ -10,6 +10,7 @@ interface TasksState {
     priority: Priority,
     categoryId?: string,
     tags?: string[],
+    subtasks?: Omit<Subtask, 'id'>[],
   ) => void
   toggleTask: (id: string) => void
   editTask: (id: string, updates: Partial<Task>) => void
@@ -22,7 +23,7 @@ export const useTasksStore = create<TasksState>()(
   persist(
     (set) => ({
       tasks: [],
-      addTask: (title, description, priority, categoryId, tags = []) =>
+      addTask: (title, description, priority, categoryId, tags = [], subtasks = []) =>
         set((state) => ({
           tasks: [
             ...state.tasks,
@@ -35,6 +36,7 @@ export const useTasksStore = create<TasksState>()(
               priority,
               categoryId,
               tags,
+              subtasks: subtasks.map(st => ({ ...st, id: crypto.randomUUID() })),
             },
           ],
         })),
