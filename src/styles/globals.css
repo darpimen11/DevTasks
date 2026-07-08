@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #F8FAFC;
+    --surface: #FFFFFF;
+    --border: #E2E8F0;
+    --text-primary: #0F172A;
+    --text-secondary: #64748B;
+    --accent: #6366F1;
+    --accent-hover: #4F46E5;
+    
+    --priority-low: #22C55E;
+    --priority-medium: #EAB308;
+    --priority-high: #F97316;
+    --priority-urgent: #EF4444;
+  }
+
+  .dark {
+    --background: #0F172A;
+    --surface: #1E293B;
+    --border: #334155;
+    --text-primary: #F1F5F9;
+    --text-secondary: #94A3B8;
+    --accent: #818CF8;
+    --accent-hover: #6366F1;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    transition: background-color 300ms, color 300ms;
+    @apply antialiased selection:bg-accent selection:text-white;
+  }
+}
