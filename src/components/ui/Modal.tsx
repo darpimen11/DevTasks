@@ -43,10 +43,10 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="relative z-10 w-full max-w-md overflow-hidden rounded-xl border border-border bg-surface p-6 shadow-xl"
+            className="relative z-10 w-full max-w-md max-h-[90vh] flex flex-col rounded-xl border border-border bg-surface shadow-xl"
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-border pb-4 mb-4">
+            <div className="flex items-center justify-between border-b border-border px-6 py-4 shrink-0">
               <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
               <button
                 onClick={onClose}
@@ -57,7 +57,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }
             </div>
 
             {/* Content */}
-            <div>{children}</div>
+            <div className="p-6 overflow-y-auto custom-scrollbar">{children}</div>
           </motion.div>
         </div>
       )}
