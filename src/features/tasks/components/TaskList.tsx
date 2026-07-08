@@ -1,8 +1,9 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { Task } from '../types'
-import { TaskCard } from './TaskCard'
+import { SortableTaskItem } from './SortableTaskItem'
 import { EmptyState } from '../../../components/ui/EmptyState'
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 
 import { TaskCardSkeleton } from './TaskCardSkeleton'
 
@@ -46,22 +47,24 @@ export const TaskList: React.FC<TaskListProps> = ({
           <h3 className="text-xs font-semibold uppercase tracking-wider text-text-secondary px-1">
             Em andamento ({activeTasks.length})
           </h3>
-          <div className="space-y-3">
-            <AnimatePresence initial={false}>
-              {activeTasks.map((task) => (
-                <motion.div
-                  key={task.id}
-                  layout
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0, overflow: 'hidden' }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <TaskCard task={task} activeTag={activeTag} onTagClick={onTagClick} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
+          <SortableContext items={activeTasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+            <div className="space-y-3">
+              <AnimatePresence initial={false}>
+                {activeTasks.map((task) => (
+                  <motion.div
+                    key={task.id}
+                    layout
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0, overflow: 'hidden' }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <SortableTaskItem task={task} activeTag={activeTag} onTagClick={onTagClick} />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          </SortableContext>
         </div>
       )}
 
@@ -82,7 +85,7 @@ export const TaskList: React.FC<TaskListProps> = ({
                   exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0, overflow: 'hidden' }}
                   transition={{ duration: 0.2 }}
                 >
-                  <TaskCard task={task} activeTag={activeTag} onTagClick={onTagClick} />
+                  <SortableTaskItem task={task} activeTag={activeTag} onTagClick={onTagClick} />
                 </motion.div>
               ))}
             </AnimatePresence>

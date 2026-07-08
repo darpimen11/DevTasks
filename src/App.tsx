@@ -9,15 +9,18 @@ import { TaskList } from './features/tasks/components/TaskList'
 import { Modal } from './components/ui/Modal'
 import { TaskForm } from './features/tasks/components/TaskForm'
 import { useTasksStore } from './store/tasksStore'
-import type { Priority } from './features/tasks/types'
+import type { Priority, Subtask } from './features/tasks/types'
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import type { DragEndEvent } from '@dnd-kit/core'
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 
-type SortOrder = 'createdAt' | 'priority' | 'alphabetical'
+type SortOrder = 'createdAt' | 'priority' | 'alphabetical' | 'manual'
 
 const PRIORITY_ORDER: Record<Priority, number> = { urgent: 0, high: 1, medium: 2, low: 3 }
 
-function App() {
+export const App: React.FC = () => {
   const { theme } = useTheme()
-  const { tasks, addTask } = useTasksStore()
+  const { tasks, addTask, reorderTasks } = useTasksStore()
 
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
@@ -94,6 +97,7 @@ function App() {
 
     // Sort
     result.sort((a, b) => {
+      if (sortOrder === 'manual') return (b.order ?? 0) - (a.order ?? 0)
       if (sortOrder === 'createdAt') return b.createdAt - a.createdAt
       if (sortOrder === 'priority') return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]
       if (sortOrder === 'alphabetical') return a.title.localeCompare(b.title, 'pt-BR')
@@ -102,6 +106,19 @@ function App() {
 
     return result
   }, [tasks, activeCategoryId, priorityFilter, activeTag, sortOrder, searchQuery])
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (over && active.id !== over.id) {
+      reorderTasks(active.id as string, over.id as string)
+      setSortOrder('manual')
+    }
+  }
 
   const hasActiveFilters =
     !!activeCategoryId || priorityFilter.length > 0 || !!searchQuery.trim() || !!activeTag
@@ -118,8 +135,9 @@ function App() {
     priority: Priority,
     categoryId?: string,
     tags?: string[],
+    subtasks?: Omit<Subtask, 'id'>[],
   ) => {
-    addTask(title, description, priority, categoryId, tags)
+    addTask(title, description, priority, categoryId, tags, subtasks)
     setIsNewTaskModalOpen(false)
     toast.success('Tarefa criada com sucesso')
   }
@@ -149,39 +167,41 @@ function App() {
           />
         }
       >
-        <div className="space-y-6">
-          <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-bold tracking-tight text-text-primary transition-colors duration-300">
-              {activeCategoryId ? 'Categoria' : 'Minhas Tarefas'}
-            </h1>
-            <p className="text-sm text-text-secondary transition-colors duration-300">
-              {!hasActiveFilters
-                ? `${tasks.filter((t) => !t.completed).length} tarefa${tasks.filter((t) => !t.completed).length !== 1 ? 's' : ''} em andamento`
-                : `${filteredAndSortedTasks.filter((t) => !t.completed).length} tarefa${filteredAndSortedTasks.filter((t) => !t.completed).length !== 1 ? 's' : ''} encontrada${filteredAndSortedTasks.filter((t) => !t.completed).length !== 1 ? 's' : ''} com os filtros ativos`}
-            </p>
-            {activeTag && (
-              <div className="mt-2 flex">
-                <button
-                  type="button"
-                  onClick={() => setActiveTag(null)}
-                  className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent hover:bg-accent/15 transition-colors"
-                  title="Remover filtro de tag"
-                >
-                  <span className="truncate">{activeTag}</span>
-                  <X className="h-3.5 w-3.5 shrink-0" />
-                </button>
-              </div>
-            )}
-          </div>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <div className="space-y-6">
+            <div className="flex flex-col gap-1">
+              <h1 className="text-2xl font-bold tracking-tight text-text-primary transition-colors duration-300">
+                {activeCategoryId ? 'Categoria' : 'Minhas Tarefas'}
+              </h1>
+              <p className="text-sm text-text-secondary transition-colors duration-300">
+                {!hasActiveFilters
+                  ? `${tasks.filter((t) => !t.completed).length} tarefa${tasks.filter((t) => !t.completed).length !== 1 ? 's' : ''} em andamento`
+                  : `${filteredAndSortedTasks.filter((t) => !t.completed).length} tarefa${filteredAndSortedTasks.filter((t) => !t.completed).length !== 1 ? 's' : ''} encontrada${filteredAndSortedTasks.filter((t) => !t.completed).length !== 1 ? 's' : ''} com os filtros ativos`}
+              </p>
+              {activeTag && (
+                <div className="mt-2 flex">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTag(null)}
+                    className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent hover:bg-accent/15 transition-colors"
+                    title="Remover filtro de tag"
+                  >
+                    <span className="truncate">{activeTag}</span>
+                    <X className="h-3.5 w-3.5 shrink-0" />
+                  </button>
+                </div>
+              )}
+            </div>
 
-          <TaskList
-            tasks={filteredAndSortedTasks}
-            onNewTaskClick={() => setIsNewTaskModalOpen(true)}
-            activeTag={activeTag}
-            onTagClick={handleTagFilter}
-            isLoading={isLoading}
-          />
-        </div>
+            <TaskList
+              tasks={filteredAndSortedTasks}
+              onNewTaskClick={() => setIsNewTaskModalOpen(true)}
+              activeTag={activeTag}
+              onTagClick={handleTagFilter}
+              isLoading={isLoading}
+            />
+          </div>
+        </DndContext>
       </PageWrapper>
 
       <Modal

@@ -4,7 +4,7 @@ import { Button } from '../ui/Button'
 import { PRIORITY_CONFIG } from '../../features/tasks/components/PriorityBadge'
 import type { Priority } from '../../features/tasks/types'
 
-type SortOrder = 'createdAt' | 'priority' | 'alphabetical'
+type SortOrder = 'createdAt' | 'priority' | 'alphabetical' | 'manual'
 
 interface HeaderProps {
   onMenuClick: () => void
@@ -87,6 +87,7 @@ export const Header: React.FC<HeaderProps> = ({
             <option value="createdAt">Mais recente</option>
             <option value="priority">Prioridade</option>
             <option value="alphabetical">Alfabética</option>
+            <option value="manual">Manual</option>
           </select>
         </div>
 

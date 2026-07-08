@@ -16,4 +16,5 @@ export interface Task {
   categoryId?: string
   tags: string[]
   subtasks?: Subtask[]
+  order: number
 }
