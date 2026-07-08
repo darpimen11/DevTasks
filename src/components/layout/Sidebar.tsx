@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Terminal, Moon, Sun, CheckSquare, X, Plus, Edit2, Trash2, FolderOpen } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
@@ -27,6 +27,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const { categories, addCategory, editCategory, deleteCategory } = useCategoriesStore()
   const { tasks, clearCategory } = useTasksStore()
+
+  useEffect(() => {
+    const handleOpenNewCategory = () => {
+      setIsCategoryModalOpen(true)
+      if (onClose) onClose() // close sidebar if open on mobile
+    }
+    window.addEventListener('open-new-category', handleOpenNewCategory)
+    return () => window.removeEventListener('open-new-category', handleOpenNewCategory)
+  }, [onClose])
 
   const handleAddCategory = (name: string, color: string) => {
     addCategory(name, color)

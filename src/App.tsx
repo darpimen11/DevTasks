@@ -14,6 +14,8 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import type { DragEndEvent } from '@dnd-kit/core'
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import { KanbanBoard } from './features/tasks/components/KanbanBoard'
+import { CommandPalette } from './components/ui/CommandPalette'
+import { Plus, LayoutList, LayoutDashboard, Moon, Sun, FolderPlus } from 'lucide-react'
 
 type SortOrder = 'createdAt' | 'priority' | 'alphabetical' | 'manual'
 
@@ -27,6 +29,7 @@ export const App: React.FC = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list')
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
 
   // Simulate loading state
   useEffect(() => {
@@ -39,18 +42,22 @@ export const App: React.FC = () => {
   // Global Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        document.activeElement instanceof HTMLInputElement ||
-        document.activeElement instanceof HTMLTextAreaElement ||
-        document.activeElement instanceof HTMLSelectElement
-      ) {
+      // Cmd/Ctrl + K
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setIsCommandPaletteOpen(true)
+      }
+      
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
         return
       }
 
       if (e.key.toLowerCase() === 'n') {
         e.preventDefault()
         setIsNewTaskModalOpen(true)
-      } else if (e.key === '/') {
+      }
+
+      if (e.key === '/') {
         e.preventDefault()
         document.getElementById('search-input')?.focus()
       }
@@ -144,6 +151,41 @@ export const App: React.FC = () => {
     toast.success('Tarefa criada com sucesso')
   }
 
+  const { toggleTheme } = useTheme()
+
+  const commands = [
+    {
+      id: 'new-task',
+      title: 'Nova tarefa',
+      icon: <Plus className="h-4 w-4" />,
+      action: () => setIsNewTaskModalOpen(true)
+    },
+    {
+      id: 'new-category',
+      title: 'Nova categoria',
+      icon: <FolderPlus className="h-4 w-4" />,
+      action: () => window.dispatchEvent(new CustomEvent('open-new-category'))
+    },
+    {
+      id: 'view-list',
+      title: 'Ir para Lista',
+      icon: <LayoutList className="h-4 w-4" />,
+      action: () => setViewMode('list')
+    },
+    {
+      id: 'view-kanban',
+      title: 'Ir para Kanban',
+      icon: <LayoutDashboard className="h-4 w-4" />,
+      action: () => setViewMode('kanban')
+    },
+    {
+      id: 'toggle-theme',
+      title: 'Alternar tema',
+      icon: theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />,
+      action: toggleTheme
+    }
+  ]
+
   return (
     <>
       <Toaster theme={theme} richColors position="bottom-right" />
@@ -227,6 +269,12 @@ export const App: React.FC = () => {
           submitLabel="Criar"
         />
       </Modal>
+
+      <CommandPalette 
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        commands={commands}
+      />
     </>
   )
 }
