@@ -58,6 +58,7 @@ function App() {
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null)
   const [priorityFilter, setPriorityFilter] = useState<Priority[]>([])
   const [sortOrder, setSortOrder] = useState<SortOrder>('createdAt')
+  const [searchQuery, setSearchQuery] = useState('')
 
   const filteredAndSortedTasks = useMemo(() => {
     let result = [...tasks]
@@ -72,6 +73,16 @@ function App() {
       result = result.filter((t) => priorityFilter.includes(t.priority))
     }
 
+    // Text search
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim()
+      result = result.filter(
+        (t) =>
+          t.title.toLowerCase().includes(q) ||
+          (t.description && t.description.toLowerCase().includes(q)),
+      )
+    }
+
     // Sort
     result.sort((a, b) => {
       if (sortOrder === 'createdAt') return b.createdAt - a.createdAt
@@ -81,7 +92,7 @@ function App() {
     })
 
     return result
-  }, [tasks, activeCategoryId, priorityFilter, sortOrder])
+  }, [tasks, activeCategoryId, priorityFilter, sortOrder, searchQuery])
 
   const handleCreateTask = (title: string, description: string, priority: Priority, categoryId?: string) => {
     addTask(title, description, priority, categoryId)
@@ -109,6 +120,8 @@ function App() {
             onPriorityFilterChange={setPriorityFilter}
             sortOrder={sortOrder}
             onSortOrderChange={setSortOrder}
+            searchQuery={searchQuery}
+            onSearchQueryChange={setSearchQuery}
           />
         }
       >
