@@ -1,112 +1,122 @@
 # 📋 DevTasks
 
-> Um To-do App de nível profissional, feito **por dev, para devs**.
+> A professional-level To-do App, made **by devs, for devs**.
 
-DevTasks não é só mais um gerenciador de tarefas — é pensado para o fluxo de trabalho de quem programa: categorias por projeto, prioridades reais, dark mode de verdade (não só invertendo cor), e diferenciais como integração com GitHub e suporte a Markdown nas descrições.
+DevTasks isn't just another task manager — it's designed for the workflow of programmers: project categories, real priorities, true dark mode (not just inverting colors), and features like GitHub integration and Markdown support for descriptions.
 
 ![status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
 ![license](https://img.shields.io/badge/license-MIT-blue)
 
 ---
 
-## ✨ Funcionalidades
+## Features
 
 ### Core
-- ✅ Criar, editar, concluir e excluir tarefas
-- Categorias/Projetos personalizados (com cor própria)
-- Prioridades (Baixa, Média, Alta, Urgente) com indicador visual
-- Dark mode (com detecção automática do sistema)
-- Busca e filtros combinados (categoria + prioridade + status)
-- 📅 Datas de vencimento e lembretes
+- ✅ Create, edit, complete, and delete tasks
+- Custom categories/projects (with their own color)
+- Priorities (Low, Medium, High, Urgent) with visual indicator
+- Dark mode (with automatic system detection)
+- Combined search and filters (category + priority + status)
+- 📅 Due dates and reminders
 
-### Diferenciais "Dev"
-- Importar issues do GitHub como tarefas
-- Descrições em Markdown (com preview)
-- Snippets de código na descrição da tarefa
-- Command Palette (`Cmd/Ctrl + K`) estilo Linear/VS Code
-- Subtarefas/checklists aninhadas
+### "Dev" Differentiators
+- Import GitHub issues as tasks
+- Markdown descriptions (with preview)
+- Code snippets in the task description
+- Command Palette (`Cmd/Ctrl + K`) Linear/VS Code style
+- Nested Subtasks/Checklists
 
-### Produtividade
-- 📊 Dashboard com estatísticas (tarefas concluídas por dia, streak, etc.)
-- Tarefas recorrentes
-- Drag and drop para reordenar e mudar status (Kanban-like)
-- 📤 Exportar/Importar dados (JSON)
+### Productivity
+- 📊 Dashboard with statistics (tasks completed per day, streak, etc.)
+- Recurring tasks
+- Drag and drop to reorder and change status (Kanban-like)
+- 📤 Export/Import data (JSON)
 
-Veja a lista completa e priorizada em [ROADMAP.md](./ROADMAP.md).
+See the complete and prioritized list in [ROADMAP.md](./ROADMAP.md).
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-| Camada | Tecnologia |
+| Layer | Technology |
+
 |---|---|
-| Frontend | React + TypeScript + Vite |
-| Estilo | Tailwind CSS |
-| Estado | Zustand |
-| Animações | Framer Motion |
-| Persistência (MVP) | localStorage / IndexedDB |
-| Backend (fase 2) | Node.js + Express + Prisma |
-| Banco (fase 2) | PostgreSQL (ou SQLite em dev) |
-| Autenticação (fase 2) | Clerk ou Auth.js |
-| Deploy | Vercel (front) + Railway/Render (back) |
 
-Detalhes de arquitetura, estrutura de pastas, paleta de cores e animações estão em [DESIGN.md](./DESIGN.md).
+| Frontend | React + TypeScript + Vite |
+
+| Style | Tailwind CSS |
+
+| State | Zustand |
+
+| Animations | Framer Motion |
+
+| Persistence (MVP) | localStorage / IndexedDB |
+
+| Backend (phase 2) | Node.js + Express + Prisma |
+
+| Database (phase 2) | PostgreSQL (or SQLite in dev mode) |
+
+| Authentication (phase 2) | Clerk or Auth.js |
+
+| Deployment | Vercel (front-end) + Railway/Render (back-end) |
+
+Architecture details, folder structure, color palette, and animations are in [DESIGN.md](./DESIGN.md).
 
 ---
 
-## 🚀 Como rodar localmente
+## How to run locally
 
 ```bash
-# Clonar o repositório
-git clone https://github.com/seu-usuario/devtasks.git
+# Clone the repository
+git clone https://github.com/your-username/devtasks.git
 cd devtasks
 
-# Instalar dependências
+# Install dependencies
 npm install
 
-# Rodar em modo dev
+# Run in dev mode
 npm run dev
 
-# Build de produção
+# Production build
 npm run build
 ```
 
-Requisitos: Node.js 18+.
+Requirements: Node.js 18+.
 
 ---
 
-## 📁 Estrutura do projeto
+## 📁 Project Structure
 
 ```
 devtasks/
 ├── src/
-│   ├── components/
-│   ├── features/
-│   ├── hooks/
-│   ├── store/
-│   ├── styles/
-│   └── utils/
+│ ├── components/
+│ ├── features/
+│ ├── hooks/
+│ ├── store/
+│ ├── styles/
+│ └── utils/
 ├── public/
 ├── README.md
 ├── ROADMAP.md
 └── DESIGN.md
 ```
-(Estrutura completa e comentada em [DESIGN.md](./DESIGN.md))
+(Complete and commented structure in [DESIGN.md](./DESIGN.md))
 
 ---
 
-## 🤝 Contribuindo
+## 🤝 Contributing
 
-1. Faça um fork do projeto
-2. Crie uma branch (`git checkout -b feature/nome-da-feature`)
-3. Commit suas mudanças (`git commit -m 'feat: adiciona X'`)
-4. Push para a branch (`git push origin feature/nome-da-feature`)
-5. Abra um Pull Request
+1. Fork the project
+2. Create a branch (`git checkout -b feature/feature-name`)
+3. Commit your changes (`git commit -m 'feat: adds X'`)
+4. Push to the branch (`git push origin feature/feature-name`)
+5. Open a Pull Request
 
-Sugestão: siga [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `chore:`, `docs:`...) — deixa o histórico limpo e facilita gerar changelog automático.
+Suggestion: follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `chore:`, `docs:`...) — keeps the history clean and makes it easier to generate an automatic changelog.
 
 ---
 
-## 📄 Licença
+## 📄 License
 
-Distribuído sob a licença MIT. Veja `LICENSE` para mais detalhes.
+Distributed under the MIT License. See `LICENSE` for more details.
