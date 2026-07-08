@@ -39,20 +39,49 @@ export const useTasksStore = create<TasksState>()(
               tags,
               subtasks: subtasks.map(st => ({ ...st, id: crypto.randomUUID() })),
               order: Date.now(),
+              status: 'todo',
             },
           ],
         })),
       toggleTask: (id) =>
         set((state) => ({
-          tasks: state.tasks.map((task) =>
-            task.id === id ? { ...task, completed: !task.completed } : task,
-          ),
+          tasks: state.tasks.map((task) => {
+            if (task.id !== id) return task
+            const newCompleted = !task.completed
+            let newStatus = task.status
+            if (newCompleted) newStatus = 'done'
+            else if (task.status === 'done') newStatus = 'todo'
+            return { ...task, completed: newCompleted, status: newStatus }
+          }),
         })),
       editTask: (id, updates) =>
         set((state) => ({
-          tasks: state.tasks.map((task) =>
-            task.id === id ? { ...task, ...updates } : task,
-          ),
+          tasks: state.tasks.map((task) => {
+            if (task.id !== id) return task
+            
+            const updatedTask = { ...task, ...updates }
+            
+            // Regra: Mover para 'done' implica completed: true.
+            // Mover para fora de 'done' implica completed: false.
+            if (updates.status) {
+              if (updates.status === 'done' && task.status !== 'done') {
+                updatedTask.completed = true
+              } else if (updates.status !== 'done' && task.status === 'done') {
+                updatedTask.completed = false
+              }
+            }
+            // Regra reversa: Marcar como completed manualmente (pela checkbox) muda status para 'done'
+            // Desmarcar completed muda status para 'todo' se estava 'done'
+            if (updates.completed !== undefined) {
+              if (updates.completed) {
+                updatedTask.status = 'done'
+              } else if (task.status === 'done') {
+                updatedTask.status = 'todo'
+              }
+            }
+            
+            return updatedTask
+          }),
         })),
       deleteTask: (id) =>
         set((state) => ({

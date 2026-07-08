@@ -13,6 +13,7 @@ import type { Priority, Subtask } from './features/tasks/types'
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import type { DragEndEvent } from '@dnd-kit/core'
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
+import { KanbanBoard } from './features/tasks/components/KanbanBoard'
 
 type SortOrder = 'createdAt' | 'priority' | 'alphabetical' | 'manual'
 
@@ -25,6 +26,7 @@ export const App: React.FC = () => {
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list')
 
   // Simulate loading state
   useEffect(() => {
@@ -164,6 +166,8 @@ export const App: React.FC = () => {
             onSortOrderChange={setSortOrder}
             searchQuery={searchQuery}
             onSearchQueryChange={setSearchQuery}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
           />
         }
       >
@@ -193,13 +197,21 @@ export const App: React.FC = () => {
               )}
             </div>
 
-            <TaskList
-              tasks={filteredAndSortedTasks}
-              onNewTaskClick={() => setIsNewTaskModalOpen(true)}
-              activeTag={activeTag}
-              onTagClick={handleTagFilter}
-              isLoading={isLoading}
-            />
+            {viewMode === 'list' ? (
+              <TaskList
+                tasks={filteredAndSortedTasks}
+                onNewTaskClick={() => setIsNewTaskModalOpen(true)}
+                activeTag={activeTag}
+                onTagClick={handleTagFilter}
+                isLoading={isLoading}
+              />
+            ) : (
+              <KanbanBoard
+                tasks={filteredAndSortedTasks}
+                activeTag={activeTag}
+                onTagClick={handleTagFilter}
+              />
+            )}
           </div>
         </DndContext>
       </PageWrapper>

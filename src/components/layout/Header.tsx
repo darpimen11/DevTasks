@@ -1,5 +1,5 @@
 import React from 'react'
-import { Plus, Menu, Search, X } from 'lucide-react'
+import { Plus, Menu, Search, X, LayoutList, LayoutDashboard } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { PRIORITY_CONFIG } from '../../features/tasks/components/PriorityBadge'
 import type { Priority } from '../../features/tasks/types'
@@ -15,6 +15,8 @@ interface HeaderProps {
   onSortOrderChange: (s: SortOrder) => void
   searchQuery: string
   onSearchQueryChange: (q: string) => void
+  viewMode: 'list' | 'kanban'
+  onViewModeChange: (mode: 'list' | 'kanban') => void
 }
 
 const ALL_PRIORITIES: Priority[] = ['urgent', 'high', 'medium', 'low']
@@ -28,6 +30,8 @@ export const Header: React.FC<HeaderProps> = ({
   onSortOrderChange,
   searchQuery,
   onSearchQueryChange,
+  viewMode,
+  onViewModeChange,
 }) => {
   const togglePriority = (p: Priority) => {
     if (priorityFilter.includes(p)) {
@@ -76,6 +80,24 @@ export const Header: React.FC<HeaderProps> = ({
                 /
               </kbd>
             )}
+          </div>
+
+          {/* View Mode Toggle */}
+          <div className="flex bg-surface border border-border rounded-lg p-0.5 ml-2 hidden sm:flex shrink-0">
+            <button
+              onClick={() => onViewModeChange('list')}
+              className={`p-1 rounded-md transition-colors ${viewMode === 'list' ? 'bg-background shadow-sm text-text-primary' : 'text-text-secondary hover:text-text-primary'}`}
+              title="Visão em Lista"
+            >
+              <LayoutList className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => onViewModeChange('kanban')}
+              className={`p-1 rounded-md transition-colors ${viewMode === 'kanban' ? 'bg-background shadow-sm text-text-primary' : 'text-text-secondary hover:text-text-primary'}`}
+              title="Visão Kanban"
+            >
+              <LayoutDashboard className="h-4 w-4" />
+            </button>
           </div>
 
           {/* Sort selector */}

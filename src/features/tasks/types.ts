@@ -17,4 +17,5 @@ export interface Task {
   tags: string[]
   subtasks?: Subtask[]
   order: number
+  status?: 'todo' | 'doing' | 'done'
 }
