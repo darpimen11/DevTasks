@@ -9,6 +9,7 @@ import { Modal } from '../../../components/ui/Modal'
 import { TaskForm } from './TaskForm'
 import { PriorityBadge } from './PriorityBadge'
 import { CategoryBadge } from '../../categories/components/CategoryBadge'
+import { MarkdownRenderer } from '../../../components/ui/MarkdownRenderer'
 
 interface TaskCardProps {
   task: Task
@@ -80,13 +81,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, activeTag, onTagClick 
             {task.title}
           </h4>
           {task.description && (
-            <p
-              className={`text-xs text-text-secondary whitespace-pre-wrap break-words leading-normal ${
-                task.completed ? 'line-through opacity-70' : ''
-              }`}
-            >
-              {task.description}
-            </p>
+            <div className={`mt-2 ${task.completed ? 'opacity-70 line-through' : ''}`}>
+              <MarkdownRenderer content={task.description} />
+            </div>
           )}
 
           {/* Badges row */}
