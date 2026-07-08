@@ -27,8 +27,8 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onNewTaskClick, isLoa
     return <EmptyState onActionClick={onNewTaskClick} />
   }
 
-  const activeTasks = tasks.filter((t) => !t.completed).sort((a, b) => b.createdAt - a.createdAt)
-  const completedTasks = tasks.filter((t) => t.completed).sort((a, b) => b.createdAt - a.createdAt)
+  const activeTasks = tasks.filter((t) => !t.completed)
+  const completedTasks = tasks.filter((t) => t.completed)
 
   return (
     <div className="space-y-8">
