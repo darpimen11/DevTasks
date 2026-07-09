@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Terminal, Moon, Sun, CheckSquare, X, Plus, Edit2, Trash2, FolderOpen } from 'lucide-react'
+import { Moon, Sun, CheckSquare, X, Plus, Edit2, Trash2, FolderOpen, Database } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { useCategoriesStore } from '../../store/categoriesStore'
@@ -7,12 +7,14 @@ import { useTasksStore } from '../../store/tasksStore'
 import { Modal } from '../ui/Modal'
 import { CategoryForm } from '../../features/categories/components/CategoryForm'
 import { useTheme } from '../../hooks/useTheme'
+import logo2 from '../../assets/logo-2.png'
 
 interface SidebarProps {
   isOpen?: boolean
   onClose?: () => void
   activeCategoryId: string | null
   onCategorySelect: (id: string | null) => void
+  onDataClick: () => void
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -20,6 +22,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onClose,
   activeCategoryId,
   onCategorySelect,
+  onDataClick,
 }) => {
   const { theme, toggleTheme } = useTheme()
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
@@ -68,8 +71,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Logo */}
       <div className="h-16 flex items-center justify-between px-5 border-b border-border shrink-0 transition-colors duration-300">
         <div className="flex items-center gap-2.5">
-          <div className="bg-accent text-white p-1.5 rounded-lg shadow-sm">
-            <Terminal className="h-5 w-5" />
+          <div className="h-9 w-9 overflow-hidden rounded-lg shrink-0 bg-background/60 border border-border/60">
+            <img src={logo2} alt="DevTasks-11" className="h-full w-full object-contain p-1" />
           </div>
           <span className="font-bold text-lg text-text-primary tracking-tight transition-colors duration-300">DevTasks-11</span>
         </div>
@@ -187,6 +190,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Footer / Dark Mode Toggle / Shortcuts */}
       <div className="mt-auto shrink-0">
         <div className="px-4 py-3 border-t border-border transition-colors duration-300">
+          <button
+            onClick={onDataClick}
+            className="mb-2 w-full flex items-center gap-2 px-3 py-2.5 text-sm font-medium rounded-lg text-text-secondary hover:text-text-primary hover:bg-background transition-colors border border-border bg-background/30"
+          >
+            <Database className="h-4 w-4" />
+            Dados
+          </button>
           <button
             onClick={toggleTheme}
             className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg text-text-secondary hover:text-text-primary hover:bg-background transition-colors border border-border bg-background/30"
