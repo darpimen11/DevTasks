@@ -7,6 +7,7 @@ interface CategoriesState {
   addCategory: (name: string, color: string) => void
   editCategory: (id: string, updates: Partial<Omit<Category, 'id'>>) => void
   deleteCategory: (id: string) => void
+  replaceCategories: (categories: Category[]) => void
 }
 
 export const useCategoriesStore = create<CategoriesState>()(
@@ -30,6 +31,7 @@ export const useCategoriesStore = create<CategoriesState>()(
         set((state) => ({
           categories: state.categories.filter((cat) => cat.id !== id),
         })),
+      replaceCategories: (categories) => set({ categories }),
     }),
     { name: 'devtasks-categories' },
   ),

@@ -12,11 +12,13 @@ interface TasksState {
     tags?: string[],
     subtasks?: Omit<Subtask, 'id'>[],
     githubUrl?: string,
+    dueDate?: number,
   ) => void
   toggleTask: (id: string) => void
   editTask: (id: string, updates: Partial<Task>) => void
   deleteTask: (id: string) => void
   reorderTasks: (activeId: string, overId: string) => void
+  replaceTasks: (tasks: Task[]) => void
   /** Called when a category is deleted — clears categoryId from all affected tasks */
   clearCategory: (categoryId: string) => void
 }
@@ -25,7 +27,7 @@ export const useTasksStore = create<TasksState>()(
   persist(
     (set) => ({
       tasks: [],
-      addTask: (title, description, priority, categoryId, tags = [], subtasks = [], githubUrl) =>
+      addTask: (title, description, priority, categoryId, tags = [], subtasks = [], githubUrl, dueDate) =>
         set((state) => ({
           tasks: [
             ...state.tasks,
@@ -42,6 +44,7 @@ export const useTasksStore = create<TasksState>()(
               order: Date.now(),
               status: 'todo',
               githubUrl,
+              dueDate,
             },
           ],
         })),
@@ -60,22 +63,32 @@ export const useTasksStore = create<TasksState>()(
         set((state) => ({
           tasks: state.tasks.map((task) => {
             if (task.id !== id) return task
-            
-            const updatedTask = { ...task, ...updates }
+
+            const normalizedUpdates: Partial<Task> = updates.subtasks
+              ? {
+                  ...updates,
+                  subtasks: updates.subtasks.map((subtask) => ({
+                    ...subtask,
+                    id: subtask.id ?? crypto.randomUUID(),
+                  })),
+                }
+              : updates
+
+            const updatedTask = { ...task, ...normalizedUpdates }
             
             // Regra: Mover para 'done' implica completed: true.
             // Mover para fora de 'done' implica completed: false.
-            if (updates.status) {
-              if (updates.status === 'done' && task.status !== 'done') {
+            if (normalizedUpdates.status) {
+              if (normalizedUpdates.status === 'done' && task.status !== 'done') {
                 updatedTask.completed = true
-              } else if (updates.status !== 'done' && task.status === 'done') {
+              } else if (normalizedUpdates.status !== 'done' && task.status === 'done') {
                 updatedTask.completed = false
               }
             }
             // Regra reversa: Marcar como completed manualmente (pela checkbox) muda status para 'done'
             // Desmarcar completed muda status para 'todo' se estava 'done'
-            if (updates.completed !== undefined) {
-              if (updates.completed) {
+            if (normalizedUpdates.completed !== undefined) {
+              if (normalizedUpdates.completed) {
                 updatedTask.status = 'done'
               } else if (task.status === 'done') {
                 updatedTask.status = 'todo'
@@ -107,6 +120,7 @@ export const useTasksStore = create<TasksState>()(
 
           return { tasks: reorderedTasks }
         }),
+      replaceTasks: (tasks) => set({ tasks }),
       clearCategory: (categoryId) =>
         set((state) => ({
           tasks: state.tasks.map((task) =>

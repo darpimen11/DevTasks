@@ -19,4 +19,5 @@ export interface Task {
   order: number
   status?: 'todo' | 'doing' | 'done'
   githubUrl?: string
+  dueDate?: number
 }

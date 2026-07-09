@@ -12,6 +12,7 @@ import { GithubImportModal } from './features/tasks/components/GithubImportModal
 import { DataPortabilityModal } from './components/ui/DataPortabilityModal'
 import { useTasksStore } from './store/tasksStore'
 import type { Priority, Subtask } from './features/tasks/types'
+
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import type { DragEndEvent } from '@dnd-kit/core'
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
@@ -20,6 +21,7 @@ import { CommandPalette } from './components/ui/CommandPalette'
 import { Plus, LayoutList, LayoutDashboard, Moon, Sun, FolderPlus, GitPullRequest, Database } from 'lucide-react'
 
 type SortOrder = 'createdAt' | 'priority' | 'dueDate' | 'alphabetical' | 'manual'
+
 
 const PRIORITY_ORDER: Record<Priority, number> = { urgent: 0, high: 1, medium: 2, low: 3 }
 
@@ -165,6 +167,7 @@ export const App: React.FC = () => {
     dueDate?: number,
   ) => {
     addTask(title, description, priority, categoryId, tags, subtasks, undefined, dueDate)
+
     setIsNewTaskModalOpen(false)
     toast.success('Tarefa criada com sucesso')
   }
