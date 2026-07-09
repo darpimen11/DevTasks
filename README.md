@@ -52,10 +52,6 @@ src/
 
 ```
 
-## Roadmap
-
-The project progress (what has already been done and what comes next) is documented in [ROADMAP.md](./ROADMAP.md).
-
 ## Contributing
 
 Pull requests are welcome. For larger changes, please open an issue first to discuss your ideas.
