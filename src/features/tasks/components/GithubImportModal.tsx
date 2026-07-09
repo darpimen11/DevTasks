@@ -31,7 +31,7 @@ export const GithubImportModal: React.FC<GithubImportModalProps> = ({ isOpen, on
     e.preventDefault()
     const trimmedRepo = repo.trim()
     if (!trimmedRepo.includes('/')) {
-      setError('Formato inválido. Use owner/repo (ex: facebook/react)')
+      setError('Invalid format. Use owner/repo (e.g. facebook/react)')
       return
     }
 
@@ -44,22 +44,22 @@ export const GithubImportModal: React.FC<GithubImportModalProps> = ({ isOpen, on
       const response = await fetch(`https://api.github.com/repos/${trimmedRepo}/issues?state=open&per_page=30`)
       if (!response.ok) {
         if (response.status === 403 || response.status === 429) {
-          throw new Error('Limite de requisições excedido. Tente novamente mais tarde.')
+          throw new Error('Request limit exceeded. Please try again later.')
         }
         if (response.status === 404) {
-          throw new Error('Repositório não encontrado. Verifique se é público e o nome está correto.')
+          throw new Error('Repository not found. Make sure it is public and the name is correct.')
         }
-        throw new Error('Erro ao buscar issues.')
+        throw new Error('Error fetching issues.')
       }
 
       const data = await response.json()
       // GitHub API returns PRs as issues too, we might want to filter them out if needed, but it's fine to keep them
       setIssues(data)
       if (data.length === 0) {
-        toast.info('Nenhuma issue aberta encontrada neste repositório.')
+        toast.info('No open issues found in this repository.')
       }
-    } catch (err: any) {
-      setError(err.message || 'Erro desconhecido')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
     }
@@ -92,7 +92,7 @@ export const GithubImportModal: React.FC<GithubImportModalProps> = ({ isOpen, on
       for (const issue of issuesToImport) {
         addTask(
           issue.title,
-          issue.body || 'Sem descrição.',
+          issue.body || 'No description.',
           'medium',
           undefined,
           ['github'],
@@ -100,7 +100,7 @@ export const GithubImportModal: React.FC<GithubImportModalProps> = ({ isOpen, on
           issue.html_url
         )
       }
-      toast.success(`${issuesToImport.length} tarefa(s) importada(s) com sucesso!`)
+      toast.success(`${issuesToImport.length} task(s) imported successfully!`)
       onClose()
       // reset states after closing
       setTimeout(() => {
@@ -115,19 +115,19 @@ export const GithubImportModal: React.FC<GithubImportModalProps> = ({ isOpen, on
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Importar do GitHub">
+    <Modal isOpen={isOpen} onClose={onClose} title="Import from GitHub">
       <div className="space-y-4">
         <form onSubmit={handleSearch} className="flex gap-2">
           <input
             type="text"
             value={repo}
             onChange={(e) => setRepo(e.target.value)}
-            placeholder="owner/repo (ex: facebook/react)"
+            placeholder="owner/repo (e.g. facebook/react)"
             className="flex-1 px-3 py-2 bg-surface border border-border rounded-lg text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
             autoFocus
           />
           <Button type="submit" disabled={loading || !repo.trim()} variant="primary">
-            {loading ? 'Buscando...' : 'Buscar'}
+            {loading ? 'Searching...' : 'Search'}
           </Button>
         </form>
 
@@ -141,13 +141,13 @@ export const GithubImportModal: React.FC<GithubImportModalProps> = ({ isOpen, on
         {issues.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center justify-between px-1">
-              <span className="text-sm text-text-secondary">{issues.length} issues encontradas</span>
+              <span className="text-sm text-text-secondary">{issues.length} issues found</span>
               <button
                 type="button"
                 onClick={toggleAll}
                 className="text-xs text-accent hover:underline"
               >
-                {selectedIssueIds.size === issues.length ? 'Desmarcar todas' : 'Selecionar todas'}
+                {selectedIssueIds.size === issues.length ? 'Deselect all' : 'Select all'}
               </button>
             </div>
             
@@ -172,7 +172,7 @@ export const GithubImportModal: React.FC<GithubImportModalProps> = ({ isOpen, on
                       <a 
                         href={issue.html_url} 
                         target="_blank" 
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
                         className="text-xs text-accent hover:underline inline-flex items-center gap-1"
                       >
@@ -189,7 +189,7 @@ export const GithubImportModal: React.FC<GithubImportModalProps> = ({ isOpen, on
 
         <div className="flex justify-end gap-2 pt-4 border-t border-border">
           <Button type="button" variant="ghost" onClick={onClose}>
-            Cancelar
+            Cancel
           </Button>
           <Button 
             type="button" 
@@ -197,7 +197,7 @@ export const GithubImportModal: React.FC<GithubImportModalProps> = ({ isOpen, on
             onClick={handleImport}
             disabled={selectedIssueIds.size === 0 || importing}
           >
-            {importing ? 'Importando...' : `Importar Selecionadas (${selectedIssueIds.size})`}
+            {importing ? 'Importing...' : `Import Selected (${selectedIssueIds.size})`}
           </Button>
         </div>
       </div>

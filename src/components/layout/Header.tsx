@@ -67,7 +67,7 @@ export const Header: React.FC<HeaderProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchQueryChange(e.target.value)}
-              placeholder="Buscar tarefas..."
+              placeholder="Search tasks..."
               className="w-full pl-9 pr-8 py-1.5 text-sm rounded-lg border border-border bg-background/50 text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:ring-2 focus:ring-accent transition-colors duration-300"
             />
             {searchQuery && (
@@ -90,14 +90,14 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={() => onViewModeChange('list')}
               className={`p-1 rounded-md transition-colors ${viewMode === 'list' ? 'bg-background shadow-sm text-text-primary' : 'text-text-secondary hover:text-text-primary'}`}
-              title="Visão em Lista"
+              title="List view"
             >
               <LayoutList className="h-4 w-4" />
             </button>
             <button
               onClick={() => onViewModeChange('kanban')}
               className={`p-1 rounded-md transition-colors ${viewMode === 'kanban' ? 'bg-background shadow-sm text-text-primary' : 'text-text-secondary hover:text-text-primary'}`}
-              title="Visão Kanban"
+              title="Kanban view"
             >
               <LayoutDashboard className="h-4 w-4" />
             </button>
@@ -109,21 +109,21 @@ export const Header: React.FC<HeaderProps> = ({
             onChange={(e) => onSortOrderChange(e.target.value as SortOrder)}
             className="text-xs rounded-lg border border-border bg-surface text-text-secondary px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-accent transition-colors duration-300"
           >
-            <option value="createdAt">Mais recente</option>
-            <option value="priority">Prioridade</option>
-            <option value="dueDate">Vencimento</option>
-            <option value="alphabetical">Alfabética</option>
+            <option value="createdAt">Newest</option>
+            <option value="priority">Priority</option>
+            <option value="dueDate">Due date</option>
+            <option value="alphabetical">Alphabetical</option>
             <option value="manual">Manual</option>
           </select>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <Button onClick={onGithubImportClick} variant="ghost" className="px-2" title="Importar do GitHub">
+          <Button onClick={onGithubImportClick} variant="ghost" className="px-2" title="Import from GitHub">
             <GitPullRequest className="h-4 w-4" />
           </Button>
           <Button onClick={onNewTaskClick} className="flex items-center gap-1.5 shadow-sm">
             <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">Nova tarefa</span>
-            <span className="sm:hidden">Nova</span>
+            <span className="hidden sm:inline">New task</span>
+            <span className="sm:hidden">New</span>
           </Button>
         </div>
       </div>
@@ -131,7 +131,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Priority filter row */}
       <div className="px-5 pb-3 flex items-center gap-1.5 flex-wrap">
         <span className="text-[10px] font-semibold uppercase tracking-wider text-text-secondary mr-1">
-          Prioridade:
+          Priority:
         </span>
         {ALL_PRIORITIES.map((p) => {
           const { label, color, bg } = PRIORITY_CONFIG[p]
@@ -156,7 +156,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => onPriorityFilterChange([])}
             className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-text-secondary hover:text-text-primary border border-border/50 hover:bg-border/20 transition-colors ml-1"
           >
-            Limpar
+            Clear
           </button>
         )}
       </div>

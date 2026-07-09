@@ -21,6 +21,22 @@ interface DevTasksExport {
   categories: Category[]
 }
 
+const isSafeHttpUrl = (value: unknown): value is string => {
+  if (typeof value !== 'string') return false
+
+  try {
+    const url = new URL(value)
+    return url.protocol === 'http:' || url.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+const sanitizeTask = (task: Task): Task => ({
+  ...task,
+  githubUrl: isSafeHttpUrl(task.githubUrl) ? task.githubUrl : undefined,
+})
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null
 
@@ -59,7 +75,7 @@ const parseExport = (value: unknown): DevTasksExport | null => {
     app: 'devtasks-11',
     version: 1,
     exportedAt: typeof value.exportedAt === 'string' ? value.exportedAt : new Date().toISOString(),
-    tasks: value.tasks,
+    tasks: value.tasks.map(sanitizeTask),
     categories: value.categories,
   }
 }
@@ -85,7 +101,7 @@ export const DataPortabilityModal: React.FC<DataPortabilityModalProps> = ({ isOp
     anchor.download = `devtasks-backup-${new Date().toISOString().slice(0, 10)}.json`
     anchor.click()
     URL.revokeObjectURL(url)
-    toast.success('Backup exportado')
+    toast.success('Backup exported')
   }
 
   const handleImportFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,35 +113,35 @@ export const DataPortabilityModal: React.FC<DataPortabilityModalProps> = ({ isOp
     try {
       const parsed = parseExport(JSON.parse(await file.text()))
       if (!parsed) {
-        toast.error('Arquivo de backup inválido')
+        toast.error('Invalid backup file')
         return
       }
 
       const confirmed = window.confirm(
-        `Importar ${parsed.tasks.length} tarefa(s) e ${parsed.categories.length} categoria(s)? Seus dados locais atuais serão substituídos.`,
+        `Import ${parsed.tasks.length} task(s) and ${parsed.categories.length} category(ies)? Your current local data will be replaced.`,
       )
       if (!confirmed) return
 
-      replaceTasks(parsed.tasks)
+      replaceTasks(parsed.tasks.map(sanitizeTask))
       replaceCategories(parsed.categories)
-      toast.success('Backup importado')
+      toast.success('Backup imported')
       onClose()
     } catch {
-      toast.error('Não foi possível ler o arquivo')
+      toast.error('Could not read the file')
     } finally {
       setIsImporting(false)
     }
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Dados">
+    <Modal isOpen={isOpen} onClose={onClose} title="Data">
       <div className="space-y-4">
         <div className="rounded-lg border border-border bg-background/50 p-3">
           <div className="flex items-start gap-2 text-sm text-text-secondary">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-priority-medium" />
             <p>
-              A importação substitui as tarefas e categorias salvas neste navegador. Exporte um
-              backup antes se quiser preservar o estado atual.
+              Importing will replace the tasks and categories saved in this browser. Export a
+              backup first if you want to preserve the current state.
             </p>
           </div>
         </div>
@@ -133,7 +149,7 @@ export const DataPortabilityModal: React.FC<DataPortabilityModalProps> = ({ isOp
         <div className="grid gap-2 sm:grid-cols-2">
           <Button type="button" variant="secondary" onClick={handleExport} className="gap-2">
             <Download className="h-4 w-4" />
-            Exportar JSON
+            Export JSON
           </Button>
           <Button
             type="button"
@@ -143,7 +159,7 @@ export const DataPortabilityModal: React.FC<DataPortabilityModalProps> = ({ isOp
             className="gap-2"
           >
             <Upload className="h-4 w-4" />
-            Importar JSON
+            Import JSON
           </Button>
         </div>
 

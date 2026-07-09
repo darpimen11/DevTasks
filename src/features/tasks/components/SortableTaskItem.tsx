@@ -9,9 +9,15 @@ interface SortableTaskItemProps {
   task: Task
   activeTag?: string | null
   onTagClick?: (tag: string) => void
+  variant?: 'default' | 'compact'
 }
 
-export const SortableTaskItem: React.FC<SortableTaskItemProps> = ({ task, activeTag, onTagClick }) => {
+export const SortableTaskItem: React.FC<SortableTaskItemProps> = ({
+  task,
+  activeTag,
+  onTagClick,
+  variant = 'default',
+}) => {
   const {
     attributes,
     listeners,
@@ -37,8 +43,8 @@ export const SortableTaskItem: React.FC<SortableTaskItemProps> = ({ task, active
       >
         <GripVertical className="h-4 w-4" />
       </div>
-      <div className="sm:ml-4">
-        <TaskCard task={task} activeTag={activeTag} onTagClick={onTagClick} />
+      <div className={variant === 'compact' ? '' : 'sm:ml-4'}>
+        <TaskCard task={task} activeTag={activeTag} onTagClick={onTagClick} variant={variant} />
       </div>
     </div>
   )

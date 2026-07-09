@@ -27,6 +27,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const { theme, toggleTheme } = useTheme()
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
   const [editingCategory, setEditingCategory] = useState<{ id: string; name: string; color: string } | null>(null)
+  const [categoryToDelete, setCategoryToDelete] = useState<{ id: string; name: string } | null>(null)
 
   const { categories, addCategory, editCategory, deleteCategory } = useCategoriesStore()
   const { tasks, clearCategory } = useTasksStore()
@@ -43,24 +44,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const handleAddCategory = (name: string, color: string) => {
     addCategory(name, color)
     setIsCategoryModalOpen(false)
-    toast.success('Categoria criada')
+    toast.success('Category created')
   }
 
   const handleEditCategory = (name: string, color: string) => {
     if (editingCategory) {
       editCategory(editingCategory.id, { name, color })
       setEditingCategory(null)
-      toast.success('Categoria atualizada')
+      toast.success('Category updated')
     }
   }
 
   const handleDeleteCategory = (id: string) => {
-    if (window.confirm('Excluir esta categoria? As tarefas associadas continuarão existindo, mas sem categoria.')) {
-      deleteCategory(id)
-      clearCategory(id)
-      if (activeCategoryId === id) onCategorySelect(null)
-      toast.info('Categoria excluída')
-    }
+    deleteCategory(id)
+    clearCategory(id)
+    if (activeCategoryId === id) onCategorySelect(null)
+    setCategoryToDelete(null)
+    toast.info('Category deleted')
   }
 
   const taskCountForCategory = (categoryId: string) =>
@@ -103,7 +103,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               }`}
             >
               <CheckSquare className="h-4 w-4 shrink-0" />
-              Todas as tarefas
+              All tasks
               <span className="ml-auto text-xs font-semibold bg-border/40 px-1.5 py-0.5 rounded-full">
                 {tasks.length}
               </span>
@@ -114,11 +114,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Categories */}
         <div>
           <div className="px-3 mb-2 text-xs font-semibold text-text-secondary uppercase tracking-wider flex items-center justify-between transition-colors duration-300">
-            <span>Categorias</span>
+            <span>Categories</span>
             <button
               onClick={() => setIsCategoryModalOpen(true)}
               className="p-0.5 rounded text-text-secondary hover:text-accent transition-colors"
-              title="Nova categoria"
+              title="New category"
             >
               <Plus className="h-3.5 w-3.5" />
             </button>
@@ -130,7 +130,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className="w-full text-left text-sm text-text-secondary px-3 py-2 rounded-lg hover:bg-border/20 transition-colors flex items-center gap-2 italic"
             >
               <FolderOpen className="h-4 w-4 shrink-0" />
-              Criar primeira categoria
+              Create your first category
             </button>
           ) : (
             <nav className="space-y-0.5">
@@ -165,17 +165,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         setEditingCategory(cat)
                       }}
                       className="p-1 rounded text-text-secondary hover:text-text-primary hover:bg-border/30"
-                      title="Editar"
+                      title="Edit"
                     >
                       <Edit2 className="h-3 w-3" />
                     </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
-                        handleDeleteCategory(cat.id)
+                        setCategoryToDelete({ id: cat.id, name: cat.name })
                       }}
                       className="p-1 rounded text-text-secondary hover:text-priority-urgent hover:bg-priority-urgent/10"
-                      title="Excluir"
+                      title="Delete"
                     >
                       <Trash2 className="h-3 w-3" />
                     </button>
@@ -187,6 +187,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
 
+      <Modal
+        isOpen={categoryToDelete !== null}
+        onClose={() => setCategoryToDelete(null)}
+        title="Delete category"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-text-secondary">
+            {categoryToDelete
+              ? `Delete category "${categoryToDelete.name}"? Associated tasks will remain, but without a category.`
+              : 'Delete this category? Associated tasks will remain, but without a category.'}
+          </p>
+
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setCategoryToDelete(null)}
+              className="inline-flex items-center justify-center rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-text-primary hover:bg-background transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => categoryToDelete && handleDeleteCategory(categoryToDelete.id)}
+              className="inline-flex items-center justify-center rounded-lg bg-priority-urgent px-4 py-2 text-sm font-medium text-white hover:bg-priority-urgent/90 transition-colors"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </Modal>
+
       {/* Footer / Dark Mode Toggle / Shortcuts */}
       <div className="mt-auto shrink-0">
         <div className="px-4 py-3 border-t border-border transition-colors duration-300">
@@ -195,7 +226,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="mb-2 w-full flex items-center gap-2 px-3 py-2.5 text-sm font-medium rounded-lg text-text-secondary hover:text-text-primary hover:bg-background transition-colors border border-border bg-background/30"
           >
             <Database className="h-4 w-4" />
-            Dados
+            Data
           </button>
           <button
             onClick={toggleTheme}
@@ -229,15 +260,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   )}
                 </AnimatePresence>
               </span>
-              {theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
+              {theme === 'dark' ? 'Light mode' : 'Dark mode'}
             </span>
           </button>
         </div>
         
         {/* Shortcuts hint */}
         <div className="px-4 pb-4 pt-1 flex justify-center text-[10px] text-text-secondary/60 gap-3 font-mono">
-          <span>[N] Nova tarefa</span>
-          <span>[/] Buscar</span>
+          <span>[N] New task</span>
+          <span>[/] Search</span>
         </div>
       </div>
     </div>
@@ -264,12 +295,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <Modal
         isOpen={isCategoryModalOpen}
         onClose={() => setIsCategoryModalOpen(false)}
-        title="Nova Categoria"
+        title="New Category"
       >
         <CategoryForm
           onSubmit={handleAddCategory}
           onCancel={() => setIsCategoryModalOpen(false)}
-          submitLabel="Criar"
+          submitLabel="Create"
         />
       </Modal>
 
@@ -277,7 +308,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <Modal
         isOpen={!!editingCategory}
         onClose={() => setEditingCategory(null)}
-        title="Editar Categoria"
+        title="Edit Category"
       >
         {editingCategory && (
           <CategoryForm
@@ -285,7 +316,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             initialName={editingCategory.name}
             initialColor={editingCategory.color}
             onCancel={() => setEditingCategory(null)}
-            submitLabel="Salvar"
+            submitLabel="Save"
           />
         )}
       </Modal>

@@ -14,6 +14,7 @@ interface TaskFormProps {
     categoryId?: string,
     tags?: string[],
     subtasks?: Omit<Subtask, 'id'>[],
+    dueDate?: number,
   ) => void
   initialTitle?: string
   initialDescription?: string
@@ -21,6 +22,7 @@ interface TaskFormProps {
   initialCategoryId?: string
   initialTags?: string[]
   initialSubtasks?: Omit<Subtask, 'id'>[]
+  initialDueDate?: number
   onCancel: () => void
   submitLabel?: string
 }
@@ -33,8 +35,9 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   initialCategoryId = '',
   initialTags = [],
   initialSubtasks = [],
+  initialDueDate,
   onCancel,
-  submitLabel = 'Salvar',
+  submitLabel = 'Save',
 }) => {
   const [title, setTitle] = useState(initialTitle)
   const [description, setDescription] = useState(initialDescription)
@@ -44,6 +47,9 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   const [tagInput, setTagInput] = useState('')
   const [subtasks, setSubtasks] = useState<Omit<Subtask, 'id'>[]>(initialSubtasks)
   const [subtaskInput, setSubtaskInput] = useState('')
+  const [dueDate, setDueDate] = useState(() =>
+    initialDueDate ? new Date(initialDueDate).toISOString().slice(0, 10) : '',
+  )
   const [error, setError] = useState('')
 
   const { categories } = useCategoriesStore()
@@ -106,7 +112,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!title.trim()) {
-      setError('O título é obrigatório.')
+      setError('Title is required.')
       return
     }
 
@@ -118,7 +124,17 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     const submitSubtasks =
       pendingSubtask ? [...subtasks, { title: pendingSubtask, completed: false }] : subtasks
 
-    onSubmit(title.trim(), description.trim(), priority, categoryId || undefined, submitTags, submitSubtasks)
+    const submitDueDate = dueDate ? new Date(`${dueDate}T23:59:59`).getTime() : undefined
+
+    onSubmit(
+      title.trim(),
+      description.trim(),
+      priority,
+      categoryId || undefined,
+      submitTags,
+      submitSubtasks,
+      submitDueDate,
+    )
   }
 
   const handleTemplateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -136,13 +152,13 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Templates Selector */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-text-primary">Template (Opcional)</label>
+        <label className="text-sm font-medium text-text-primary">Template (Optional)</label>
         <select
           onChange={handleTemplateChange}
           defaultValue=""
           className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
         >
-          <option value="" disabled>Selecione um template para preencher a descrição</option>
+          <option value="" disabled>Select a template to prefill the description</option>
           {TASK_TEMPLATES.map(t => (
             <option key={t.id} value={t.id}>{t.name}</option>
           ))}
@@ -152,7 +168,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       {/* Title */}
       <div>
         <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-1.5">
-          Título *
+          Title *
         </label>
         <input
           type="text"
@@ -161,7 +177,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
             setTitle(e.target.value)
             if (error) setError('')
           }}
-          placeholder="ex: Configurar base de dados"
+          placeholder="e.g. Set up database"
           className={`w-full px-3 py-2 text-sm rounded-lg border bg-surface text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:ring-2 focus:ring-accent ${
             error ? 'border-priority-urgent' : 'border-border'
           }`}
@@ -173,12 +189,12 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       {/* Description */}
       <div>
         <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-1.5">
-          Descrição
+          Description
         </label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="ex: Instalar PostgreSQL e configurar Prisma..."
+          placeholder="e.g. Install PostgreSQL and configure Prisma..."
           rows={3}
           className="w-full px-3 py-2 text-sm rounded-lg border border-border bg-surface text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:ring-2 focus:ring-accent resize-none font-sans"
         />
@@ -187,7 +203,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       {/* Priority */}
       <div>
         <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-2">
-          Prioridade
+          Priority
         </label>
         <div className="flex flex-wrap gap-2">
           {priorities.map((p) => {
@@ -212,18 +228,31 @@ export const TaskForm: React.FC<TaskFormProps> = ({
         </div>
       </div>
 
+      {/* Due date */}
+      <div>
+        <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-1.5">
+          Due date
+        </label>
+        <input
+          type="date"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+          className="w-full px-3 py-2 text-sm rounded-lg border border-border bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+        />
+      </div>
+
       {/* Category */}
       {categories.length > 0 && (
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-1.5">
-            Categoria
+            Category
           </label>
           <select
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
             className="w-full px-3 py-2 text-sm rounded-lg border border-border bg-surface text-text-primary focus:outline-none focus:ring-2 focus:ring-accent"
           >
-            <option value="">Sem categoria</option>
+            <option value="">No category</option>
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
@@ -244,14 +273,14 @@ export const TaskForm: React.FC<TaskFormProps> = ({
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
             onKeyDown={handleTagKeyDown}
-            placeholder="ex: frontend"
+            placeholder="e.g. frontend"
             className="min-w-0 flex-1 px-3 py-2 text-sm rounded-lg border border-border bg-surface text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:ring-2 focus:ring-accent"
           />
           <button
             type="button"
             onClick={handleAddTag}
             className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-text-secondary hover:text-text-primary hover:bg-border/20 focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
-            title="Adicionar tag"
+            title="Add tag"
           >
             <Plus className="h-4 w-4" />
           </button>
@@ -269,7 +298,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
                   type="button"
                   onClick={() => handleRemoveTag(tag)}
                   className="-mr-0.5 rounded-full p-0.5 hover:bg-border/50 hover:text-text-primary transition-colors"
-                  title={`Remover tag ${tag}`}
+                  title={`Remove tag ${tag}`}
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -282,7 +311,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       {/* Subtasks */}
       <div>
         <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-1.5">
-          Subtarefas
+          Subtasks
         </label>
         <div className="flex gap-2 mb-2">
           <input
@@ -290,14 +319,14 @@ export const TaskForm: React.FC<TaskFormProps> = ({
             value={subtaskInput}
             onChange={(e) => setSubtaskInput(e.target.value)}
             onKeyDown={handleSubtaskKeyDown}
-            placeholder="Adicionar subtarefa..."
+            placeholder="Add subtask..."
             className="min-w-0 flex-1 px-3 py-2 text-sm rounded-lg border border-border bg-surface text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:ring-2 focus:ring-accent"
           />
           <button
             type="button"
             onClick={handleAddSubtask}
             className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-text-secondary hover:text-text-primary hover:bg-border/20 focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
-            title="Adicionar subtarefa"
+            title="Add subtask"
           >
             <Plus className="h-4 w-4" />
           </button>
@@ -320,7 +349,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
                   type="button"
                   onClick={() => handleRemoveSubtask(index)}
                   className="p-1 text-text-secondary hover:text-priority-urgent opacity-0 group-hover:opacity-100 transition-opacity"
-                  title="Remover subtarefa"
+                  title="Remove subtask"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -333,7 +362,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       {/* Actions */}
       <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
         <Button type="button" variant="ghost" onClick={onCancel}>
-          Cancelar
+          Cancel
         </Button>
         <Button type="submit" variant="primary">
           {submitLabel}

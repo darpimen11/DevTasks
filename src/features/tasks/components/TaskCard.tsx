@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Edit2, Trash2, Calendar, ChevronDown, ChevronUp, CheckSquare } from 'lucide-react'
+import { Edit2, Trash2, Calendar, ChevronDown, ChevronUp, CheckSquare, Clock } from 'lucide-react'
 import type { Task, Subtask } from '../types'
 import { Checkbox } from '../../../components/ui/Checkbox'
 import { useTasksStore } from '../../../store/tasksStore'
@@ -15,13 +15,16 @@ interface TaskCardProps {
   task: Task
   activeTag?: string | null
   onTagClick?: (tag: string) => void
+  variant?: 'default' | 'compact'
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({ task, activeTag, onTagClick }) => {
+export const TaskCard: React.FC<TaskCardProps> = ({ task, activeTag, onTagClick, variant = 'default' }) => {
   const { toggleTask, deleteTask, editTask } = useTasksStore()
   const { categories } = useCategoriesStore()
   const [isEditing, setIsEditing] = useState(false)
   const [isSubtasksExpanded, setIsSubtasksExpanded] = useState(false)
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
+  const isCompact = variant === 'compact'
 
   const category = task.categoryId ? categories.find((c) => c.id === task.categoryId) : undefined
   const tags = task.tags ?? []
@@ -29,10 +32,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, activeTag, onTagClick 
   const completedSubtasksCount = subtasks.filter(st => st.completed).length
 
   const handleDelete = () => {
-    if (window.confirm('Tem certeza que deseja excluir esta tarefa?')) {
-      deleteTask(task.id)
-      toast.info('Tarefa excluída')
-    }
+    deleteTask(task.id)
+    setIsDeleteConfirmOpen(false)
+    toast.info('Task deleted')
   }
 
   const handleEditSubmit = (
@@ -42,10 +44,19 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, activeTag, onTagClick 
     categoryId?: string,
     tags?: string[],
     subtasks?: Omit<Subtask, 'id'>[],
+    dueDate?: number,
   ) => {
-    editTask(task.id, { title, description, priority, categoryId, tags: tags ?? [], subtasks: subtasks as Subtask[] })
+    editTask(task.id, {
+      title,
+      description,
+      priority,
+      categoryId,
+      tags: tags ?? [],
+      subtasks: subtasks as Subtask[],
+      dueDate,
+    })
     setIsEditing(false)
-    toast.success('Tarefa atualizada')
+    toast.success('Task updated')
   }
 
   const handleToggleSubtask = (subtaskId: string) => {
@@ -61,10 +72,32 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, activeTag, onTagClick 
     return new Date(timestamp).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
   }
 
+  const getDueDateState = () => {
+    if (!task.dueDate || task.completed) return null
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const dueDate = new Date(task.dueDate)
+    dueDate.setHours(0, 0, 0, 0)
+
+    if (dueDate.getTime() < today.getTime()) return 'overdue'
+    if (dueDate.getTime() === today.getTime()) return 'today'
+    return 'upcoming'
+  }
+
+  const dueDateState = getDueDateState()
+  const dueDateClassName =
+    dueDateState === 'overdue'
+      ? 'border-priority-urgent/30 bg-priority-urgent/10 text-priority-urgent'
+      : dueDateState === 'today'
+        ? 'border-priority-medium/30 bg-priority-medium/10 text-priority-medium'
+        : 'border-border bg-background/60 text-text-secondary'
+
   return (
     <>
       <div
-        className={`p-4 rounded-xl border border-border bg-surface shadow-sm hover:shadow-md transition-all duration-200 flex items-start gap-4 ${
+        className={`${isCompact ? 'p-3 gap-3' : 'p-4 gap-4'} rounded-xl border border-border bg-surface shadow-sm hover:shadow-md transition-all duration-200 flex items-start overflow-hidden ${
           task.completed ? 'opacity-60' : ''
         }`}
       >
@@ -81,8 +114,15 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, activeTag, onTagClick 
             {task.title}
           </h4>
           {task.description && (
-            <div className={`mt-2 ${task.completed ? 'opacity-70 line-through' : ''}`}>
-              <MarkdownRenderer content={task.description} />
+            <div
+              className={`${isCompact ? 'relative mt-2 max-h-32 overflow-hidden rounded-md' : 'mt-2'} ${
+                task.completed ? 'opacity-70 line-through' : ''
+              }`}
+            >
+              <MarkdownRenderer content={task.description} variant={isCompact ? 'preview' : 'full'} />
+              {isCompact && (
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-surface to-transparent" />
+              )}
             </div>
           )}
 
@@ -94,7 +134,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, activeTag, onTagClick 
               <a 
                 href={task.githubUrl}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
                 className="inline-flex items-center gap-1 bg-surface text-[10px] border border-border px-1.5 py-0.5 rounded text-accent hover:bg-accent/10 transition-colors"
                 title="Ver issue no GitHub"
@@ -102,13 +142,28 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, activeTag, onTagClick 
                 GitHub
               </a>
             )}
+            {task.dueDate && (
+              <span
+                className={`inline-flex items-center gap-1 text-[10px] border px-1.5 py-0.5 rounded ${dueDateClassName}`}
+                title={
+                  dueDateState === 'overdue'
+                    ? 'Task overdue'
+                    : dueDateState === 'today'
+                      ? 'Due today'
+                      : 'Due date'
+                }
+              >
+                <Clock className="h-3 w-3" />
+                {dueDateState === 'overdue' ? 'Overdue' : dueDateState === 'today' ? 'Today' : formatDate(task.dueDate)}
+              </span>
+            )}
             <span className="inline-flex items-center gap-1 text-[10px] text-text-secondary ml-auto">
               <Calendar className="h-3 w-3" />
               {formatDate(task.createdAt)}
             </span>
           </div>
 
-          {tags.length > 0 && (
+          {tags.length > 0 && !isCompact && (
             <div className="flex flex-wrap items-center gap-1.5">
               {tags.map((tag) => {
                 const isActive = activeTag?.toLowerCase() === tag.toLowerCase()
@@ -147,7 +202,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, activeTag, onTagClick 
               >
                 <CheckSquare className="h-3.5 w-3.5" />
                 <span>
-                  {completedSubtasksCount}/{subtasks.length} subtarefas
+                  {completedSubtasksCount}/{subtasks.length} subtasks
                 </span>
                 {isSubtasksExpanded ? (
                   <ChevronUp className="h-3.5 w-3.5 ml-0.5 opacity-70" />
@@ -156,7 +211,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, activeTag, onTagClick 
                 )}
               </button>
 
-              {isSubtasksExpanded && (
+              {isSubtasksExpanded && !isCompact && (
                 <div className="mt-2 space-y-1.5 pl-1">
                   {subtasks.map((st) => (
                     <div key={st.id} className="flex items-start gap-2 group">
@@ -183,21 +238,50 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, activeTag, onTagClick 
           <button
             onClick={() => setIsEditing(true)}
             className="p-1.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-border/20 transition-colors focus:outline-none"
-            title="Editar tarefa"
+            title="Edit task"
           >
             <Edit2 className="h-3.5 w-3.5" />
           </button>
           <button
-            onClick={handleDelete}
+            onClick={() => setIsDeleteConfirmOpen(true)}
             className="p-1.5 rounded-lg text-text-secondary hover:text-priority-urgent hover:bg-priority-urgent/10 transition-colors focus:outline-none"
-            title="Excluir tarefa"
+            title="Delete task"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
 
-      <Modal isOpen={isEditing} onClose={() => setIsEditing(false)} title="Editar Tarefa">
+      <Modal
+        isOpen={isDeleteConfirmOpen}
+        onClose={() => setIsDeleteConfirmOpen(false)}
+        title="Delete task"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-text-secondary">
+            Are you sure you want to delete this task? This action cannot be undone.
+          </p>
+
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setIsDeleteConfirmOpen(false)}
+              className="inline-flex items-center justify-center rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-text-primary hover:bg-background transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="inline-flex items-center justify-center rounded-lg bg-priority-urgent px-4 py-2 text-sm font-medium text-white hover:bg-priority-urgent/90 transition-colors"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={isEditing} onClose={() => setIsEditing(false)} title="Edit Task">
         <TaskForm
           onSubmit={handleEditSubmit}
           initialTitle={task.title}
@@ -206,8 +290,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, activeTag, onTagClick 
           initialCategoryId={task.categoryId}
           initialTags={tags}
           initialSubtasks={subtasks}
+          initialDueDate={task.dueDate}
           onCancel={() => setIsEditing(false)}
-          submitLabel="Salvar"
+          submitLabel="Save"
         />
       </Modal>
     </>

@@ -45,7 +45,7 @@ export const TaskList: React.FC<TaskListProps> = ({
       {activeTasks.length > 0 && (
         <div className="space-y-3">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-text-secondary px-1">
-            Em andamento ({activeTasks.length})
+            Active ({activeTasks.length})
           </h3>
           <SortableContext items={activeTasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-3">
@@ -72,7 +72,7 @@ export const TaskList: React.FC<TaskListProps> = ({
       {completedTasks.length > 0 && (
         <div className="space-y-3">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-text-secondary px-1">
-            Concluídas ({completedTasks.length})
+            Completed ({completedTasks.length})
           </h3>
           <div className="space-y-3">
             <AnimatePresence initial={false}>

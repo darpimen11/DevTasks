@@ -169,7 +169,7 @@ export const App: React.FC = () => {
     addTask(title, description, priority, categoryId, tags, subtasks, undefined, dueDate)
 
     setIsNewTaskModalOpen(false)
-    toast.success('Tarefa criada com sucesso')
+    toast.success('Task created successfully')
   }
 
   const { toggleTheme } = useTheme()
@@ -177,43 +177,43 @@ export const App: React.FC = () => {
   const commands = [
     {
       id: 'new-task',
-      title: 'Nova tarefa',
+      title: 'New task',
       icon: <Plus className="h-4 w-4" />,
       action: () => setIsNewTaskModalOpen(true)
     },
     {
       id: 'import-github',
-      title: 'Importar do GitHub',
+      title: 'Import from GitHub',
       icon: <GitPullRequest className="h-4 w-4" />,
       action: () => setIsGithubModalOpen(true)
     },
     {
       id: 'data',
-      title: 'Exportar ou importar dados',
+      title: 'Export or import data',
       icon: <Database className="h-4 w-4" />,
       action: () => setIsDataModalOpen(true)
     },
     {
       id: 'new-category',
-      title: 'Nova categoria',
+      title: 'New category',
       icon: <FolderPlus className="h-4 w-4" />,
       action: () => window.dispatchEvent(new CustomEvent('open-new-category'))
     },
     {
       id: 'view-list',
-      title: 'Ir para Lista',
+      title: 'Go to List',
       icon: <LayoutList className="h-4 w-4" />,
       action: () => setViewMode('list')
     },
     {
       id: 'view-kanban',
-      title: 'Ir para Kanban',
+      title: 'Go to Kanban',
       icon: <LayoutDashboard className="h-4 w-4" />,
       action: () => setViewMode('kanban')
     },
     {
       id: 'toggle-theme',
-      title: 'Alternar tema',
+      title: 'Toggle theme',
       icon: theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />,
       action: toggleTheme
     }
@@ -255,12 +255,12 @@ export const App: React.FC = () => {
           <div className="space-y-6">
             <div className="flex flex-col gap-1">
               <h1 className="text-2xl font-bold tracking-tight text-text-primary transition-colors duration-300">
-                {activeCategoryId ? 'Categoria' : 'Minhas Tarefas'}
+                {activeCategoryId ? 'Category' : 'My Tasks'}
               </h1>
               <p className="text-sm text-text-secondary transition-colors duration-300">
                 {!hasActiveFilters
-                  ? `${tasks.filter((t) => !t.completed).length} tarefa${tasks.filter((t) => !t.completed).length !== 1 ? 's' : ''} em andamento`
-                  : `${filteredAndSortedTasks.filter((t) => !t.completed).length} tarefa${filteredAndSortedTasks.filter((t) => !t.completed).length !== 1 ? 's' : ''} encontrada${filteredAndSortedTasks.filter((t) => !t.completed).length !== 1 ? 's' : ''} com os filtros ativos`}
+                  ? `${tasks.filter((t) => !t.completed).length} active task${tasks.filter((t) => !t.completed).length !== 1 ? 's' : ''}`
+                  : `${filteredAndSortedTasks.filter((t) => !t.completed).length} task${filteredAndSortedTasks.filter((t) => !t.completed).length !== 1 ? 's' : ''} found with the active filters`}
               </p>
               {activeTag && (
                 <div className="mt-2 flex">
@@ -299,12 +299,12 @@ export const App: React.FC = () => {
       <Modal
         isOpen={isNewTaskModalOpen}
         onClose={() => setIsNewTaskModalOpen(false)}
-        title="Criar Nova Tarefa"
+        title="Create New Task"
       >
         <TaskForm
           onSubmit={handleCreateTask}
           onCancel={() => setIsNewTaskModalOpen(false)}
-          submitLabel="Criar"
+          submitLabel="Create"
         />
       </Modal>
 

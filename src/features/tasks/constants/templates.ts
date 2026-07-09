@@ -8,48 +8,48 @@ export const TASK_TEMPLATES: TaskTemplate[] = [
   {
     id: 'bug-report',
     name: 'Bug Report',
-    content: `## Comportamento Esperado
-O que deveria acontecer?
+    content: `## Expected Behavior
+  What should happen?
 
-## Comportamento Atual
-O que está acontecendo (o erro)?
+  ## Current Behavior
+  What is happening now (the bug)?
 
-## Passos para Reproduzir
-1. Acessar a página X
-2. Clicar no botão Y
-3. Ver o erro Z
+  ## Steps to Reproduce
+  1. Open page X
+  2. Click button Y
+  3. See error Z
 
-## Informações Adicionais
+  ## Additional Information
 * **Browser:** Chrome / Firefox / Safari
-* **Versão:** v1.0.0
+  * **Version:** v1.0.0
 `
   },
   {
     id: 'feature-request',
     name: 'Feature Request',
-    content: `## Qual é o problema?
-Descreva o problema que esta feature visa resolver.
+    content: `## What is the problem?
+  Describe the problem this feature aims to solve.
 
-## Solução Proposta
-Como a feature deve funcionar?
+  ## Proposed Solution
+  How should the feature work?
 
-## Alternativas Consideradas
-Quais outras soluções foram pensadas?
+  ## Considered Alternatives
+  What other solutions were considered?
 
-## Critérios de Aceite
-- [ ] O usuário consegue fazer X
-- [ ] O sistema retorna Y
+  ## Acceptance Criteria
+  - [ ] The user can do X
+  - [ ] The system returns Y
 `
   },
   {
     id: 'simple-task',
-    name: 'Tarefa Simples',
-    content: `## Objetivo
-Breve descrição do objetivo desta tarefa.
+    name: 'Simple Task',
+    content: `## Goal
+  Brief description of this task's goal.
 
 ## Checklist
-- [ ] Passo 1
-- [ ] Passo 2
+  - [ ] Step 1
+  - [ ] Step 2
 `
   }
 ]

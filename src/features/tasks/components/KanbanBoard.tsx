@@ -50,7 +50,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, activeTag, onTa
   const DroppableColumn = ({ colId, children }: { colId: string, children: React.ReactNode }) => {
     const { setNodeRef } = useDroppable({ id: colId })
     return (
-      <div ref={setNodeRef} className="p-3 flex-1 min-h-[200px] flex flex-col gap-3">
+      <div ref={setNodeRef} className="p-3 flex-1 min-h-[200px] min-w-0 flex flex-col gap-3">
         {children}
       </div>
     )
@@ -63,9 +63,9 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, activeTag, onTa
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid min-w-0 grid-cols-3 gap-4">
         {columnData.map((col) => (
-          <div key={col.id} className="flex flex-col bg-surface/50 border border-border rounded-xl overflow-hidden min-w-0">
+          <div key={col.id} className="flex min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-surface/50">
             <div className="px-4 py-3 border-b border-border bg-surface flex items-center justify-between shrink-0">
               <h3 className="text-sm font-semibold text-text-primary">{col.title}</h3>
               <span className="text-xs font-medium bg-background border border-border text-text-secondary px-2 py-0.5 rounded-full">
@@ -75,12 +75,18 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, activeTag, onTa
             <DroppableColumn colId={col.id}>
               <SortableContext items={col.tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
                 {col.tasks.map((task) => (
-                  <SortableTaskItem key={task.id} task={task} activeTag={activeTag} onTagClick={onTagClick} />
+                  <SortableTaskItem
+                    key={task.id}
+                    task={task}
+                    activeTag={activeTag}
+                    onTagClick={onTagClick}
+                    variant="compact"
+                  />
                 ))}
               </SortableContext>
               {col.tasks.length === 0 && (
                 <div className="flex-1 flex items-center justify-center border-2 border-dashed border-border rounded-lg opacity-50 min-h-[200px]">
-                  <span className="text-xs text-text-secondary">Arraste tarefas para cá</span>
+                  <span className="text-xs text-text-secondary">Drag tasks here</span>
                 </div>
               )}
             </DroppableColumn>

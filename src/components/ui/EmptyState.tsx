@@ -13,14 +13,14 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ onActionClick }) => {
         <ClipboardList className="h-8 w-8" />
       </div>
       <h3 className="text-lg font-semibold text-text-primary mb-2">
-        Nenhuma tarefa por aqui
+        No tasks here yet
       </h3>
       <p className="text-sm text-text-secondary max-w-sm mb-6">
-        Crie sua primeira tarefa para começar a organizar seu fluxo de desenvolvimento e acompanhar seu progresso.
+        Create your first task to start organizing your development workflow and track your progress.
       </p>
       <Button onClick={onActionClick} className="flex items-center gap-2 shadow-sm">
         <Plus className="h-4 w-4" />
-        Criar primeira tarefa
+        Create first task
       </Button>
     </div>
   )

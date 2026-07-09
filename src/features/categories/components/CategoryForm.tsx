@@ -25,7 +25,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   initialName = '',
   initialColor = PALETTE[0],
   onCancel,
-  submitLabel = 'Salvar',
+  submitLabel = 'Save',
 }) => {
   const [name, setName] = useState(initialName)
   const [color, setColor] = useState(initialColor)
@@ -34,7 +34,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!name.trim()) {
-      setError('O nome é obrigatório.')
+      setError('Name is required.')
       return
     }
     onSubmit(name.trim(), color)
@@ -44,7 +44,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-1.5">
-          Nome *
+          Name *
         </label>
         <input
           type="text"
@@ -53,7 +53,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
             setName(e.target.value)
             if (error) setError('')
           }}
-          placeholder="ex: Frontend, Bug, Infra..."
+          placeholder="e.g. Frontend, Bug, Infra..."
           className={`w-full px-3 py-2 text-sm rounded-lg border bg-surface text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:ring-2 focus:ring-accent ${
             error ? 'border-priority-urgent' : 'border-border'
           }`}
@@ -64,7 +64,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
 
       <div>
         <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-2">
-          Cor
+          Color
         </label>
         <div className="flex flex-wrap gap-2">
           {PALETTE.map((c) => (
@@ -84,7 +84,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
 
       <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
         <Button type="button" variant="ghost" onClick={onCancel}>
-          Cancelar
+          Cancel
         </Button>
         <Button type="submit" variant="primary">
           {submitLabel}

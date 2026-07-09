@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { Search } from 'lucide-react'
 
 interface Command {
@@ -23,30 +23,35 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
     cmd.title.toLowerCase().includes(query.toLowerCase())
   )
 
-  useEffect(() => {
-    if (isOpen) {
-      setQuery('')
-      setSelectedIndex(0)
-    }
-  }, [isOpen])
-
-  useEffect(() => {
+  const handleQueryChange = (value: string) => {
+    setQuery(value)
     setSelectedIndex(0)
-  }, [query])
+  }
+
+  const handleClose = () => {
+    setQuery('')
+    setSelectedIndex(0)
+    onClose()
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault()
+      if (filteredCommands.length === 0) return
       setSelectedIndex((prev) => (prev + 1) % filteredCommands.length)
     } else if (e.key === 'ArrowUp') {
       e.preventDefault()
+      if (filteredCommands.length === 0) return
       setSelectedIndex((prev) => (prev - 1 + filteredCommands.length) % filteredCommands.length)
     } else if (e.key === 'Enter') {
       e.preventDefault()
       if (filteredCommands[selectedIndex]) {
         filteredCommands[selectedIndex].action()
-        onClose()
+        handleClose()
       }
+    } else if (e.key === 'Escape') {
+      e.preventDefault()
+      handleClose()
     }
   }
 
@@ -57,7 +62,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
       {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-background/80 backdrop-blur-sm"
-        onClick={onClose}
+        onClick={handleClose}
       />
       
       {/* Palette */}
@@ -71,7 +76,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
             autoFocus
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => handleQueryChange(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="O que você precisa fazer?"
             className="flex-1 bg-transparent text-text-primary placeholder:text-text-secondary/50 focus:outline-none text-sm"
@@ -95,7 +100,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
                 key={cmd.id}
                 onClick={() => {
                   cmd.action()
-                  onClose()
+                  handleClose()
                 }}
                 onMouseEnter={() => setSelectedIndex(index)}
                 className={`w-full flex items-center px-3 py-2.5 rounded-lg text-sm transition-colors ${
