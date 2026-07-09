@@ -9,6 +9,7 @@ import { TaskList } from './features/tasks/components/TaskList'
 import { Modal } from './components/ui/Modal'
 import { TaskForm } from './features/tasks/components/TaskForm'
 import { GithubImportModal } from './features/tasks/components/GithubImportModal'
+import { DataPortabilityModal } from './components/ui/DataPortabilityModal'
 import { useTasksStore } from './store/tasksStore'
 import type { Priority, Subtask } from './features/tasks/types'
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
@@ -16,9 +17,9 @@ import type { DragEndEvent } from '@dnd-kit/core'
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import { KanbanBoard } from './features/tasks/components/KanbanBoard'
 import { CommandPalette } from './components/ui/CommandPalette'
-import { Plus, LayoutList, LayoutDashboard, Moon, Sun, FolderPlus, GitPullRequest } from 'lucide-react'
+import { Plus, LayoutList, LayoutDashboard, Moon, Sun, FolderPlus, GitPullRequest, Database } from 'lucide-react'
 
-type SortOrder = 'createdAt' | 'priority' | 'alphabetical' | 'manual'
+type SortOrder = 'createdAt' | 'priority' | 'dueDate' | 'alphabetical' | 'manual'
 
 const PRIORITY_ORDER: Record<Priority, number> = { urgent: 0, high: 1, medium: 2, low: 3 }
 
@@ -28,6 +29,7 @@ export const App: React.FC = () => {
 
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false)
   const [isGithubModalOpen, setIsGithubModalOpen] = useState(false)
+  const [isDataModalOpen, setIsDataModalOpen] = useState(false)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list')
@@ -123,6 +125,7 @@ export const App: React.FC = () => {
       if (sortOrder === 'manual') return (b.order ?? 0) - (a.order ?? 0)
       if (sortOrder === 'createdAt') return b.createdAt - a.createdAt
       if (sortOrder === 'priority') return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]
+      if (sortOrder === 'dueDate') return (a.dueDate ?? Number.MAX_SAFE_INTEGER) - (b.dueDate ?? Number.MAX_SAFE_INTEGER)
       if (sortOrder === 'alphabetical') return a.title.localeCompare(b.title, 'pt-BR')
       return 0
     })
@@ -159,8 +162,9 @@ export const App: React.FC = () => {
     categoryId?: string,
     tags?: string[],
     subtasks?: Omit<Subtask, 'id'>[],
+    dueDate?: number,
   ) => {
-    addTask(title, description, priority, categoryId, tags, subtasks)
+    addTask(title, description, priority, categoryId, tags, subtasks, undefined, dueDate)
     setIsNewTaskModalOpen(false)
     toast.success('Tarefa criada com sucesso')
   }
@@ -179,6 +183,12 @@ export const App: React.FC = () => {
       title: 'Importar do GitHub',
       icon: <GitPullRequest className="h-4 w-4" />,
       action: () => setIsGithubModalOpen(true)
+    },
+    {
+      id: 'data',
+      title: 'Exportar ou importar dados',
+      icon: <Database className="h-4 w-4" />,
+      action: () => setIsDataModalOpen(true)
     },
     {
       id: 'new-category',
@@ -216,6 +226,10 @@ export const App: React.FC = () => {
             onClose={() => setIsMobileSidebarOpen(false)}
             activeCategoryId={activeCategoryId}
             onCategorySelect={setActiveCategoryId}
+            onDataClick={() => {
+              setIsDataModalOpen(true)
+              setIsMobileSidebarOpen(false)
+            }}
           />
         }
         header={
@@ -294,6 +308,11 @@ export const App: React.FC = () => {
       <GithubImportModal 
         isOpen={isGithubModalOpen}
         onClose={() => setIsGithubModalOpen(false)}
+      />
+
+      <DataPortabilityModal
+        isOpen={isDataModalOpen}
+        onClose={() => setIsDataModalOpen(false)}
       />
 
       <CommandPalette 
